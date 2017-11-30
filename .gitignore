@@ -75,7 +75,7 @@ target/
 
 # celery beat schedule file
 celerybeat-schedule
-
+Screenshot from 2017-11-29 23-07-01
 # SageMath parsed files
 *.sage.py
 
@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Distutils
+MANIFEST
