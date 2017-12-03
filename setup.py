@@ -1,16 +1,16 @@
 from distutils.core import setup
 setup(
-    name = 'faradayio',
-    packages = ['faradayio'],
-    version = '0.0.1',
-    description = 'Asynchronous input/output program linking a network interface and UART port for Faraday radios ',
-    author = 'FaradayRF',
-    author_email = 'Support@FaradayRF.com',
-    url = 'https://github.com/FaradayRF/faradayio',
+    name='faradayio',
+    packages=['faradayio'],
+    version='0.0.1',
+    description='FaradayRF Asynchronous input/output module and program',
+    author='FaradayRF',
+    author_email='Support@FaradayRF.com',
+    url='https://github.com/FaradayRF/faradayio',
 
-    license = 'GPLv3',
+    license='GPLv3',
 
-    classifiers =[
+    classifiers=[
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',

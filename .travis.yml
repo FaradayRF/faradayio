@@ -8,5 +8,5 @@ install:
 
 # Run tests
 script:
-  - flake8 --exclude .venv/ .
+  - flake8 --exclude .venv/,docs/ .
   - pytest
