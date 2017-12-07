@@ -5,7 +5,7 @@ import asyncio
 # import pytest_asyncio
 import pytest
 import sliplib
-import faradayio
+from faradayio import faraday
 
 
 def test_socketOne(event_loop):
@@ -14,7 +14,6 @@ def test_socketOne(event_loop):
     testStr = "Hello World!"
     serialPort.serialPort.write(testStr.encode(encoding='utf_8'))
     res = serialPort.serialPort.read(len(testStr))
-    print("Loopback: {0}".format(res.decode("utf-8")))
 
     assert res.decode("utf-8") == testStr
 
@@ -25,10 +24,12 @@ def test_serialEmptySynchronousSend():
         serial port.
         """
 
+        # Create class object necessary for test
         serialPort = SerialTestClass()
         slip = sliplib.Driver()
-        faraday = faradayio.Faraday(serialPort)
+        faradayRadio = faraday.Faraday(serialPort)
 
+        # Create empty string test message
         emptyStr = ""
         # testStr = "abcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -36,13 +37,10 @@ def test_serialEmptySynchronousSend():
         slipMsg = slip.send(emptyStr.encode(encoding='utf_8'))
 
         # Send data over Faraday
-        # Function should take in data, convert to utf-8 string, and return
-        # a slip encoded string. Function should return number of bytest sent
-        # including slip protocol overhead
-        res = faraday.send(emptyStr)
+        res = faradayRadio.send(emptyStr)
 
         # Use serial to receive raw transmission with slip protocol
-        ret = serialPort.read(res)
+        ret = serialPort.serialPort.read(res)
 
         # Check that the returned data from the serial port == slipMsg
         assert slipMsg == ret
