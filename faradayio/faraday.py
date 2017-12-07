@@ -21,3 +21,17 @@ class Faraday(object):
 
         # Return number of bytes transmitted over serial port
         return res
+
+    def receive(self, length):
+        """Reads in data from a serial port (length bytes), decodes slip"""
+
+        # Create a sliplib Driver
+        slipDriver = sliplib.Driver()
+
+        # Receive data from serial port
+        ret = self._serialPort.serialPort.read(length)
+
+        # Decode data from slip format
+        data = slipDriver.receive(ret)
+
+        return data
