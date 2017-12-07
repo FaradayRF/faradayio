@@ -27,7 +27,7 @@ def test_serialEmptySynchronousSend():
 
         serialPort = SerialTestClass()
         slip = sliplib.Driver()
-        faraday = faradayio
+        faraday = FaradayIO(serialPort)
 
         emptyStr = ""
         # testStr = "abcdefghijklmnopqrstuvwxyz0123456789"
