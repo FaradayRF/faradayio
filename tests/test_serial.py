@@ -31,13 +31,39 @@ def test_serialEmptySynchronousSend():
 
         # Create empty string test message
         emptyStr = ""
-        # testStr = "abcdefghijklmnopqrstuvwxyz0123456789"
 
         # Create slip message to test against
         slipMsg = slip.send(emptyStr.encode(encoding='utf_8'))
 
         # Send data over Faraday
         res = faradayRadio.send(emptyStr)
+
+        # Use serial to receive raw transmission with slip protocol
+        ret = serialPort.serialPort.read(res)
+
+        # Check that the returned data from the serial port == slipMsg
+        assert slipMsg == ret
+
+def test_serialStrSynchronousSend():
+        """
+        Tests a synchronous faradayio send command with string data. This
+        should take in data convert it to slip format and send it out to the
+        serial port.
+        """
+
+        # Create class object necessary for test
+        serialPort = SerialTestClass()
+        slip = sliplib.Driver()
+        faradayRadio = faraday.Faraday(serialPort)
+
+        # Create string test message
+        testStr = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+        # Create slip message to test against
+        slipMsg = slip.send(testStr.encode(encoding='utf_8'))
+
+        # Send data over Faraday
+        res = faradayRadio.send(testStr)
 
         # Use serial to receive raw transmission with slip protocol
         ret = serialPort.serialPort.read(res)
