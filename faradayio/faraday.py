@@ -31,7 +31,9 @@ class Faraday(object):
         # Receive data from serial port
         ret = self._serialPort.serialPort.read(length)
 
-        # Decode data from slip format
-        data = slipDriver.receive(ret)
+        # Decode data from slip format, stores msgs in sliplib.Driver.messages
+        slipDriver.receive(ret)
 
-        return data
+        # Yield each message as a generator
+        for item in slipDriver.messages:
+            yield item

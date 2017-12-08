@@ -92,8 +92,7 @@ def test_serialEmptySynchronousReceive():
         # Use serial to send raw transmission with slip protocol
         res = serialPort.serialPort.write(slipMsg)
 
-        # Receive data from Faraday
-        ret = faradayRadio.receive(res)
-
-        # Check that the returned data from the serial port == slipMsg
-        assert slipMsg == ret
+        # Receive data from Faraday which yields each item it parses from slip
+        for item in faradayRadio.receive(res):
+            # Should be only one item
+            assert item.decode("utf-8") == emptyStr
