@@ -1,11 +1,13 @@
 from tests.serialtestclass import SerialTestClass
 # from tests.serialtestclass import Output
 import asyncio
-# import serial_asyncio
+import serial_asyncio
 # import pytest_asyncio
 import pytest
 import sliplib
 from faradayio import faraday
+from faradayio.faraday import FaradayInput
+# from faradayio.faraday import FaradayOutput
 
 
 def test_socketOne(event_loop):
@@ -47,7 +49,8 @@ def test_serialEmptySynchronousSend():
 def test_serialStrSynchronousSend():
         """
         Tests a synchronous faradayio send command with string data. This
-        should take in data convert it to slip format and send it out to the
+        should take in data co()
+        faradayRadio = faradanvert it to slip format and send it out to the
         serial port.
         """
 
@@ -122,3 +125,41 @@ def test_serialStrSynchronousReceive():
         for item in faradayRadio.receive(res):
             # Should be only one item
             assert item.decode("utf-8") == testStr
+
+import os
+import unittest
+import asyncio
+
+import serial_asyncio
+
+HOST = '127.0.0.1'
+_PORT = 8888
+
+# on which port should the tests be performed:
+PORT = 'socket://%s:%s' % (HOST, _PORT)
+
+
+@unittest.skipIf(os.name != 'posix', "asyncio not supported on platform")
+class Test_asyncio(unittest.TestCase):
+    """Test asyncio related functionality"""
+
+    def setUp(self):
+        self.loop = asyncio.get_event_loop()
+        # create a closed serial port
+
+    def tearDown(self):
+        self.loop.close()
+
+    def test_asyncio(self):
+        faradayIn = faraday.Input
+        faradayOut = faraday.Output
+        if PORT.startswith('socket://'):
+            coro = self.loop.create_server(faradayIn, HOST, _PORT)
+            self.loop.run_until_complete(coro)
+
+        client = serial_asyncio.create_serial_connection(self.loop, faradayOut, PORT)
+        self.loop.run_until_complete(asyncio.gather(client))
+        # print("TEST = {0}".format(test))
+        self.loop.run_forever()
+        # self.assertEqual(b''.join(client.received), faraday.Output.TEXT)
+        # self.assertEqual(actions, ['open', 'close'])
