@@ -80,7 +80,7 @@ def test_serialParamaterizedSynchSend(test_input):
 def test_serialParamaterizedSynchReceive(test_input):
     """
     Tests a synchronous faradayio receive command with data. This
-    should read in data, convert it to slip format, and return the original
+    should read in data, convert it to slip format, libraryand return the original
     message
     """
 
@@ -99,58 +99,6 @@ def test_serialParamaterizedSynchReceive(test_input):
     for item in faradayRadio.receive(res):
         # Should be only one item
         assert item == test_input
-
-def test_serialEmptySynchronousReceive():
-        """
-        Tests a synchronous faradayio receive command with empty data. This
-        should read in data, convert it to slip format, and return the original
-        message
-        """
-
-        # Create class object necessary for test
-        serialPort = SerialTestClass()
-        slip = sliplib.Driver()
-        faradayRadio = faraday.Faraday(serialPort)
-
-        # Create empty string test message
-        emptyStr = b""
-
-        # Create slip message to test against
-        slipMsg = slip.send(emptyStr)
-
-        # Use serial to send raw transmission with slip protocol
-        res = serialPort.serialPort.write(slipMsg)
-
-        # Receive data from Faraday which yields each item it parses from slip
-        for item in faradayRadio.receive(res):
-            # Should be only one item
-            assert item.decode("utf-8") == emptyStr
-
-def test_serialStrSynchronousReceive():
-        """
-        Tests a synchronous faradayio receive command with empty data. This
-        should read in data, convert it to slip format, and return the original
-        message
-        """
-
-        # Create class object necessary for test
-        serialPort = SerialTestClass()
-        slip = sliplib.Driver()
-        faradayRadio = faraday.Faraday(serialPort)
-
-        # Create test string test message
-        testStr = b"abcdefghijklmnopqrstuvwxyz0123456789"
-
-        # Create slip message to test against
-        slipMsg = slip.send(testStr)
-
-        # Use serial to send raw transmission with slip protocol
-        res = serialPort.serialPort.write(slipMsg)
-
-        # Receive data from Faraday which yields each item it parses from slip
-        for item in faradayRadio.receive(res):
-            # Should be only one item
-            assert item == testStr
 
 import os
 import unittest
