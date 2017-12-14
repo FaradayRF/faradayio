@@ -15,6 +15,7 @@ def test_socketOne(event_loop):
 
     assert res.decode("utf-8") == testStr
 
+
 @pytest.mark.parametrize("test_input", [
     (b""),
     (bytes(string.ascii_letters, "utf-8")),
@@ -37,7 +38,6 @@ def test_socketOne(event_loop):
 def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
     serialPort = SerialTestClass()
-    slip = sliplib.Driver()
     faradayRadio = faraday.Faraday(serialPort)
 
     # Create slip message to test against
@@ -51,6 +51,7 @@ def test_serialParamaterizedSynchSend(test_input):
 
     # Check that the returned data from the serial port == slipMsg
     assert ret == slipMsg
+
 
 @pytest.mark.parametrize("test_input", [
     (b""),
@@ -73,9 +74,8 @@ def test_serialParamaterizedSynchSend(test_input):
 ])
 def test_serialParamaterizedSynchReceive(test_input):
     """
-    Tests a synchronous faradayio receive command with data. This
-    should read in data, convert it to slip format, libraryand return the original
-    message
+    Tests a synchronous faradayio receive command with data. This should read
+    in data, convert it to slip format, libraryand return the original message
     """
 
     # Create class object necessary for test
