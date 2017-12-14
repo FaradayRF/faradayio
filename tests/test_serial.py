@@ -1,15 +1,9 @@
-from tests.serialtestclass import SerialTestClass
-# from tests.serialtestclass import Output
-import asyncio
-import serial_asyncio
-# import pytest_asyncio
 import pytest
 import sliplib
-from faradayio import faraday
-from faradayio.faraday import FaradayInput
-import unittest
 import string
-# from faradayio.faraday import FaradayOutput
+
+from faradayio import faraday
+from tests.serialtestclass import SerialTestClass
 
 
 def test_socketOne(event_loop):
