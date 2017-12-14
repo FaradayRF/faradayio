@@ -7,14 +7,10 @@ class Faraday(object):
     def __init__(self, serialPort=None):
         self._serialPort = serialPort
 
-    def send(self, msg):
+    def send(self, msg: bytes):
         """Converts data to slip format then sends over serial port"""
         # Create a sliplib Driver
         slipDriver = sliplib.Driver()
-
-        # Convert data to UTF-8 encoding
-        print(msg)
-        # msg = msg.decode("utf-8")
 
         # Package data in slip format
         slipData = slipDriver.send(msg)

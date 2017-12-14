@@ -8,6 +8,7 @@ import sliplib
 from faradayio import faraday
 from faradayio.faraday import FaradayInput
 import unittest
+import string
 # from faradayio.faraday import FaradayOutput
 
 
@@ -20,33 +21,42 @@ def test_socketOne(event_loop):
 
     assert res.decode("utf-8") == testStr
 
-# @pytest.mark.parametrize("test_input", [
-#     (b""),
-#     # (b"abcdefghijklmnopqrstuvwxyz0123456789"),
-#     # (b"test" + sliplib.slip.END + b"test"),
-# ])
-def test_serialParamaterizedSynchSend():
+@pytest.mark.parametrize("test_input", [
+    (b""),
+    (bytes(string.ascii_letters, "utf-8")),
+    (bytes(string.ascii_uppercase, "utf-8")),
+    (bytes(string.ascii_lowercase, "utf-8")),
+    (bytes(string.digits, "utf-8")),
+    (bytes(string.hexdigits, "utf-8")),
+    (bytes(string.printable, "utf-8")),
+    (bytes(string.octdigits, "utf-8")),
+    (sliplib.slip.END),
+    (sliplib.slip.END*2),
+    (sliplib.slip.ESC),
+    (sliplib.slip.ESC*2),
+    (sliplib.slip.ESC_ESC),
+    (sliplib.slip.ESC_ESC*2),
+    (sliplib.slip.ESC_END),
+    (sliplib.slip.ESC_END*2),
+    (sliplib.slip.END*4 + bytes(string.ascii_letters, "utf-8")),
+])
+def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
     serialPort = SerialTestClass()
     slip = sliplib.Driver()
     faradayRadio = faraday.Faraday(serialPort)
 
-    # Create empty string test message
-    # testStr = test_input
-
     # Create slip message to test against
-    slipMsg = sliplib.encode(b"test")
-    print(slipMsg)
-    #
-    # # Send data over Faradayb
-    # bytes()
-    # res = faradayRadio.send(b"test")
-    #
-    # # Use serial to receive raw transmission with slip protocol
-    # ret = serialPort.serialPort.read(res)
-    #
-    # # Check that the returned data from the serial port == slipMsg
-    # assert ret == slipMsg
+    slipMsg = sliplib.encode(test_input)
+
+    # Send data over Faraday
+    res = faradayRadio.send(test_input)
+
+    # Use serial to receive raw transmission with slip protocol
+    ret = serialPort.serialPort.read(res)
+
+    # Check that the returned data from the serial port == slipMsg
+    assert ret == slipMsg
 
 def test_serialStrSynchronousSend():
         """
