@@ -13,7 +13,8 @@ class Faraday(object):
         slipDriver = sliplib.Driver()
 
         # Convert data to UTF-8 encoding
-        msg = msg.encode(encoding="utf-8")
+        print(msg)
+        # msg = msg.decode("utf-8")
 
         # Package data in slip format
         slipData = slipDriver.send(msg)

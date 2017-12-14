@@ -7,6 +7,7 @@ import pytest
 import sliplib
 from faradayio import faraday
 from faradayio.faraday import FaradayInput
+import unittest
 # from faradayio.faraday import FaradayOutput
 
 
@@ -19,32 +20,33 @@ def test_socketOne(event_loop):
 
     assert res.decode("utf-8") == testStr
 
-def test_serialEmptySynchronousSend():
-        """
-        Tests a synchronous faradayio send command with empty data. This
-        should take in data convert it to slip format and send it out to the
-        serial port.
-        """
+# @pytest.mark.parametrize("test_input", [
+#     (b""),
+#     # (b"abcdefghijklmnopqrstuvwxyz0123456789"),
+#     # (b"test" + sliplib.slip.END + b"test"),
+# ])
+def test_serialParamaterizedSynchSend():
+    # Create class object necessary for test
+    serialPort = SerialTestClass()
+    slip = sliplib.Driver()
+    faradayRadio = faraday.Faraday(serialPort)
 
-        # Create class object necessary for test
-        serialPort = SerialTestClass()
-        slip = sliplib.Driver()
-        faradayRadio = faraday.Faraday(serialPort)
+    # Create empty string test message
+    # testStr = test_input
 
-        # Create empty string test message
-        emptyStr = ""
-
-        # Create slip message to test against
-        slipMsg = slip.send(emptyStr.encode(encoding='utf_8'))
-
-        # Send data over Faraday
-        res = faradayRadio.send(emptyStr)
-
-        # Use serial to receive raw transmission with slip protocol
-        ret = serialPort.serialPort.read(res)
-
-        # Check that the returned data from the serial port == slipMsg
-        assert slipMsg == ret
+    # Create slip message to test against
+    slipMsg = sliplib.encode(b"test")
+    print(slipMsg)
+    #
+    # # Send data over Faradayb
+    # bytes()
+    # res = faradayRadio.send(b"test")
+    #
+    # # Use serial to receive raw transmission with slip protocol
+    # ret = serialPort.serialPort.read(res)
+    #
+    # # Check that the returned data from the serial port == slipMsg
+    # assert ret == slipMsg
 
 def test_serialStrSynchronousSend():
         """
@@ -60,10 +62,10 @@ def test_serialStrSynchronousSend():
         faradayRadio = faraday.Faraday(serialPort)
 
         # Create string test message
-        testStr = "abcdefghijklmnopqrstuvwxyz0123456789"
+        testStr = b"abcdefghijklmnopqrstuvwxyz0123456789"
 
         # Create slip message to test against
-        slipMsg = slip.send(testStr.encode(encoding='utf_8'))
+        slipMsg = slip.send(testStr)
 
         # Send data over Faraday
         res = faradayRadio.send(testStr)
@@ -87,10 +89,10 @@ def test_serialEmptySynchronousReceive():
         faradayRadio = faraday.Faraday(serialPort)
 
         # Create empty string test message
-        emptyStr = ""
+        emptyStr = b""
 
         # Create slip message to test against
-        slipMsg = slip.send(emptyStr.encode(encoding='utf_8'))
+        slipMsg = slip.send(emptyStr)
 
         # Use serial to send raw transmission with slip protocol
         res = serialPort.serialPort.write(slipMsg)
@@ -113,10 +115,10 @@ def test_serialStrSynchronousReceive():
         faradayRadio = faraday.Faraday(serialPort)
 
         # Create test string test message
-        testStr = "abcdefghijklmnopqrstuvwxyz0123456789"
+        testStr = b"abcdefghijklmnopqrstuvwxyz0123456789"
 
         # Create slip message to test against
-        slipMsg = slip.send(testStr.encode(encoding='utf_8'))
+        slipMsg = slip.send(testStr)
 
         # Use serial to send raw transmission with slip protocol
         res = serialPort.serialPort.write(slipMsg)
@@ -124,7 +126,7 @@ def test_serialStrSynchronousReceive():
         # Receive data from Faraday which yields each item it parses from slip
         for item in faradayRadio.receive(res):
             # Should be only one item
-            assert item.decode("utf-8") == testStr
+            assert item == testStr
 
 import os
 import unittest
