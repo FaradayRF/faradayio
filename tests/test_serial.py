@@ -58,34 +58,6 @@ def test_serialParamaterizedSynchSend(test_input):
     # Check that the returned data from the serial port == slipMsg
     assert ret == slipMsg
 
-def test_serialStrSynchronousSend():
-        """
-        Tests a synchronous faradayio send command with string data. This
-        should take in data co()
-        faradayRadio = faradanvert it to slip format and send it out to the
-        serial port.
-        """
-
-        # Create class object necessary for test
-        serialPort = SerialTestClass()
-        slip = sliplib.Driver()
-        faradayRadio = faraday.Faraday(serialPort)
-
-        # Create string test message
-        testStr = b"abcdefghijklmnopqrstuvwxyz0123456789"
-
-        # Create slip message to test against
-        slipMsg = slip.send(testStr)
-
-        # Send data over Faraday
-        res = faradayRadio.send(testStr)
-
-        # Use serial to receive raw transmission with slip protocol
-        ret = serialPort.serialPort.read(res)
-
-        # Check that the returned data from the serial port == slipMsg
-        assert slipMsg == ret
-
 def test_serialEmptySynchronousReceive():
         """
         Tests a synchronous faradayio receive command with empty data. This
