@@ -33,7 +33,7 @@ def test_socketOne(event_loop):
     (sliplib.slip.ESC_ESC*2),
     (sliplib.slip.ESC_END),
     (sliplib.slip.ESC_END*2),
-    (bytes(sliplib.slip.END*4) + bytes(string.ascii_letters, "utf-8")),
+    ((sliplib.slip.END*4) + bytes(string.ascii_letters, "utf-8")),
 ])
 def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
