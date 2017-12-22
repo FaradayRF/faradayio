@@ -6,7 +6,7 @@ from faradayio import faraday
 from tests.serialtestclass import SerialTestClass
 
 
-def test_socketOne(event_loop):
+def test_socketOne():
     """Simple test to make sure loopback serial port created successfully"""
     serialPort = SerialTestClass()
     testStr = "Hello World!"
