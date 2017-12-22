@@ -1,13 +1,39 @@
+"""
+.. module:: faraday
+    :platform: Unix
+    :synopsis: Main module for Faraday radios from FaradayRF.
+
+.. moduleauthor:: Bryce Salmi <bryce@faradayrf.com>
+
+"""
+
 import sliplib
 
 
 class Faraday(object):
-    """A class that enables transfer of data between computer and Faraday"""
+    """A class that enables transfer of data between computer and Faraday
+
+    Attributes:
+        _serialPort (serial instance): Pyserial serial port instance.
+    """
+
     def __init__(self, serialPort=None):
         self._serialPort = serialPort
 
-    def send(self, msg: bytes):
-        """Converts data to slip format then sends over serial port"""
+    def send(self, msg):
+        """Converts data to slip format then sends over serial port
+
+        Uses the SlipLib module to convert the message data into SLIP format.
+        The message is then sent over the serial port opened with the instance
+        of the Faraday class used when invoking send().
+
+        Args:
+            msg (bytes): Bytes format message to send over serial port.
+
+        Returns:
+            int: Number of bytes transmitted over the serial port.
+
+        """
         # Create a sliplib Driver
         slipDriver = sliplib.Driver()
 
@@ -21,7 +47,20 @@ class Faraday(object):
         return res
 
     def receive(self, length):
-        """Reads in data from a serial port (length bytes), decodes slip"""
+        """Reads in data from a serial port (length bytes), decodes slip
+
+        A generator function which reads the serial port opened with the
+        instance of Faraday used to read() and then uses the SlipLib module to
+        convert the SLIP format into bytes. Each message received is added to a
+        receive buffer in SlipLib which is then yielded.
+
+        Args:
+            length (int): Length to receive with serialPort.read(length)
+
+        Yields:
+            bytes: The next message in the receive buffer
+
+        """
 
         # Create a sliplib Driver
         slipDriver = sliplib.Driver()
