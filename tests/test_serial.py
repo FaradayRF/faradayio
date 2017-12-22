@@ -69,7 +69,6 @@ def test_serialParamaterizedSynchSend(test_input):
     (sliplib.slip.ESC_ESC*2),
     (sliplib.slip.ESC_END),
     (sliplib.slip.ESC_END*2),
-    (sliplib.slip.END*4 + bytes(string.ascii_letters, "utf-8")),
 ])
 def test_serialParamaterizedSynchReceive(test_input):
     """
