@@ -5,8 +5,10 @@ python:
 # Install dependencies
 install:
   - pip install -r requirements.txt
+  - git clone https://github.com/rhjdjong/SlipLib.git
+  - pip install SlipLib
 
 # Run tests
 script:
-  - flake8 --exclude .venv/,docs/ .
-  - pytest
+  - "flake8 --exclude .venv/,docs/,SlipLib/ ."
+  - pytest tests/

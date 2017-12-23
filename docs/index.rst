@@ -6,6 +6,8 @@
 Welcome to faradayio's documentation!
 =====================================
 
+``faradayio`` is the module which enables FaradayRF radio support. It is intended to interface a Faraday radio while providing a network adapter interface to applications.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

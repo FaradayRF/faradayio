@@ -11,3 +11,6 @@ pyflakes==1.6.0
 pytest==3.3.0
 python-pytun==2.2.1
 six==1.11.0
+pyserial==3.4
+pyserial-asyncio==0.4
+asyncio==3.4.3
