@@ -74,3 +74,10 @@ class Faraday(object):
         # Yield each message as a generator
         for item in slipDriver.messages:
             yield item
+
+class TunnelServer(object):
+    def __init__(self, addr='10.0.1.0', dstaddr='', netmask='255.255.0.0', mtu=1500):
+        self._addr = addr
+        self._dstaddr = dstaddr
+        self._netmask = netmask
+        self._mtu = mtu
