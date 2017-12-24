@@ -8,10 +8,10 @@ def test_tunSetup():
     faradayTUN = faraday.TunnelServer()
 
     # Check defaults
-    assert faradayTUN._addr == '10.0.1.0'
-    assert faradayTUN._dstaddr == ''
-    assert faradayTUN._netmask == '255.255.0.0'
-    assert faradayTUN._mtu == 1500
+    assert faradayTUN._tun.addr == '10.0.1.0'
+    # assert faradayTUN._tun.dstaddr == ''
+    assert faradayTUN._tun.netmask == '255.255.0.0'
+    assert faradayTUN._tun.mtu == 1500
 
 
 # self._tun.up()

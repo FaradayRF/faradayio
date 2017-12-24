@@ -8,6 +8,7 @@
 """
 
 import sliplib
+import pytun
 
 
 class Faraday(object):
@@ -76,8 +77,8 @@ class Faraday(object):
             yield item
 
 class TunnelServer(object):
-    def __init__(self, addr='10.0.1.0', dstaddr='', netmask='255.255.0.0', mtu=1500):
-        self._addr = addr
-        self._dstaddr = dstaddr
-        self._netmask = netmask
-        self._mtu = mtu
+    def __init__(self, addr='10.0.1.0', netmask='255.255.0.0', mtu=1500):
+        self._tun = pytun.TunTapDevice(flags=pytun.IFF_TUN|pytun.IFF_NO_PI)
+        self._tun.addr = addr
+        self._tun.netmask = netmask
+        self._tun.mtu = mtu
