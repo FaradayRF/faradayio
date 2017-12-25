@@ -82,3 +82,8 @@ class TunnelServer(object):
         self._tun.addr = addr
         self._tun.netmask = netmask
         self._tun.mtu = mtu
+        self._tun.up()
+
+    def __del__(self):
+        self._tun.down()
+        print("TUN brought down...")

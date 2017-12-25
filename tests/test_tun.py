@@ -1,5 +1,8 @@
 import pytest
 import pytun
+import socket
+import time
+import os
 
 from faradayio import faraday
 
@@ -13,9 +16,11 @@ def test_tunSetup():
     assert faradayTUN._tun.netmask == '255.255.0.0'
     assert faradayTUN._tun.mtu == 1500
 
+def test_tunStart():
+    """Start a Faraday TUN adapter and ping it"""
+    faradayTUN = faraday.TunnelServer()
+    response = os.system("ping -c 1 10.0.1.0")
 
-# self._tun.up()
-# self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# self._sock.bind((laddr, lport))
-# self._raddr = raddr
-# self._rport = rport
+    # Check that response == 0 which means TUN adapter started
+    assert response == 0
+    
