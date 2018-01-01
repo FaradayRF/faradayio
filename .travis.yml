@@ -8,5 +8,5 @@ install:
 
 # Run tests
 script:
-  - "flake8 --exclude .venv/,docs/ ."
-  - pytest tests/
+  - "flake8 --exclude .venv/,docs/,tests/test_tun.py ."
+  - pytest --ignore=tests/test_tun.py tests/
