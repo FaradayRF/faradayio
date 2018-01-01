@@ -76,6 +76,7 @@ class Faraday(object):
         for item in slipDriver.messages:
             yield item
 
+
 class TunnelServer(object):
     def __init__(self, addr='10.0.1.0', netmask='255.255.0.0', mtu=1500):
         self._tun = pytun.TunTapDevice(name='Faraday')
