@@ -43,6 +43,8 @@ def test_tunSend():
     while True:
         s.sendall(b'Hello, world')
         time.sleep(0.1)
+        data = faradayTUN._tun.read(faradayTUN._tun.mtu)
+        print(data)
     print(s)
     # num = s.sendto(bytes("Hello, world!","utf-8"),(HOST,PORT))
     # print(num)
