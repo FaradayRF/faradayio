@@ -8,6 +8,7 @@ import string
 import struct
 
 from faradayio import faraday
+from scapy.all import IP
 
 def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
@@ -40,34 +41,9 @@ def test_tunSend():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     # time.sleep(60)
     s.connect((HOST,PORT))
-    while True:
-        s.sendall(b'Hello, world')
-        time.sleep(0.1)
-        data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-        print(data)
-    print(s)
-    # num = s.sendto(bytes("Hello, world!","utf-8"),(HOST,PORT))
-    # print(num)
-    # faradayTUN._tun.write(bytes("Hello, world!","utf-8"))
-    # while True:
-    #     faradayTUN._tun.write("Hello, world!")
-    #     # print("wrote...")
-    #     time.sleep(0.01)
-    #     data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-    #     # print(data)
+    s.send(b'Hello, world')
+    time.sleep(0.1)
+    data = faradayTUN._tun.read(faradayTUN._tun.mtu)
+    # print(type(repr(data)))
+    print(data)
     s.close()
-    # print(len(data))
-    # print(bytes.fromhex(str(data)))
-    # string = struct.unpack("50sH",data)
-    # print(string)
-    # for i in string:
-    #     print(i)
-
-
-
-    # # Create class object necessary for test
-    # serialPort = SerialTestClass()
-    # faradayRadio = faraday.Faraday(serialPort)
-    #
-    # # Create slip message to test against
-    # slipMsg = sliplib.encode(test_input)
