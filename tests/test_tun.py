@@ -27,35 +27,39 @@ def test_tunStart():
     # Check that response == 0 which means TUN adapter started
     assert response == 0
 
-# def test_tunSend():
-#     """Start a TUN adapter and send a SLIP message from IP"""
-#     # Start a TUN adapter
-#     faradayTUN = faraday.TunnelServer()
-#     # faradayTUN._tun.mtu = 100
-#
-#     # Send a string throught the IP
-#     HOST = faradayTUN._tun.addr
-#     PORT = 9999 #  Anything
-#
-#     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#     time.sleep(60)
-#     # s.connect((HOST,PORT))
-#     #num = s.sendto(bytes("Hello, world!","utf-8"),(HOST,PORT))
-#     # print(num)
-#     # faradayTUN._tun.write(bytes("Hello, world!","utf-8"))
-#     # while True:
-#     #     faradayTUN._tun.write(bytes("Hello, world!","utf-8"))
-#     #     print("wrote...")
-#     #     time.sleep(0.5)
-#         # data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-#         # print(data)
-#     s.close()
-#     print(len(data))
-#     # print(bytes.fromhex(str(data)))
-#     string = struct.unpack("50sH",data)
-#     print(string)
-#     # for i in string:
-#     #     print(i)
+def test_tunSend():
+    """Start a TUN adapter and send a SLIP message from IP"""
+    # Start a TUN adapter
+    faradayTUN = faraday.TunnelServer()
+    # faradayTUN._tun.mtu = 100
+
+    # Send a string throught the IP
+    HOST = faradayTUN._tun.dstaddr
+    PORT = 9999 #  Anything
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # time.sleep(60)
+    s.connect((HOST,PORT))
+    while True:
+        s.sendall(b'Hello, world')
+        time.sleep(0.1)
+    print(s)
+    # num = s.sendto(bytes("Hello, world!","utf-8"),(HOST,PORT))
+    # print(num)
+    # faradayTUN._tun.write(bytes("Hello, world!","utf-8"))
+    # while True:
+    #     faradayTUN._tun.write("Hello, world!")
+    #     # print("wrote...")
+    #     time.sleep(0.01)
+    #     data = faradayTUN._tun.read(faradayTUN._tun.mtu)
+    #     # print(data)
+    s.close()
+    # print(len(data))
+    # print(bytes.fromhex(str(data)))
+    # string = struct.unpack("50sH",data)
+    # print(string)
+    # for i in string:
+    #     print(i)
 
 
 
