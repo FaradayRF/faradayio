@@ -32,20 +32,35 @@ def test_tunStart():
 
 def test_tunSend():
     """Start a TUN adapter and send a SLIP message from IP"""
+    # May not even need SLIP here as the next step involves slip over serial port....
+
+
     # Start a TUN adapter
     faradayTUN = faraday.TunnelServer()
-    # faradayTUN._tun.mtu = 100
 
     # Send a string throught the IP
     HOST = faradayTUN._tun.dstaddr
     PORT = 9999 #  Anything
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # time.sleep(60)
-    s.connect((HOST,PORT))
-    s.send(b'Hello, world')
-    time.sleep(0.1)
-    data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-    print(UDP(IP(data[4:]).load))
+    # Just send asci letters for now
+    msg = bytes(string.ascii_letters, "utf-8")
+    slipData = sliplib.encode(msg)
 
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((HOST,PORT))
+    s.send(slipData)
+
+    data = faradayTUN._tun.read(faradayTUN._tun.mtu)
+    # Check for IPV4 since IPV6 packets sometime come down
+    # print(IP(data[4:]).version == 6)
+    payload = IP(data[4:]).load
+
+    decodedmsg = sliplib.decode(payload)
+    # print(message)
+
+    # Check that slip message was sent correctly over TunnelServer
+    assert slipData == payload
+
+    # Check that message was decoded from slip correctly
+    assert msg == decodedmsg
     s.close()
