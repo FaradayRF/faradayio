@@ -7,9 +7,10 @@ import sliplib
 import string
 import struct
 import binascii
+import dpkt
 
 from faradayio import faraday
-from scapy.all import IP
+from scapy.all import IP, UDP
 
 def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
@@ -45,6 +46,6 @@ def test_tunSend():
     s.send(b'Hello, world')
     time.sleep(0.1)
     data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-    print(IP(binascii.a2b_hex('4500002845f440004011e0ce0a0000010a000002c3cd270f0014e09a48656c6c6f2c20776f726c64')).load)
-    #print(data)
+    print(UDP(IP(data[4:]).load))
+
     s.close()
