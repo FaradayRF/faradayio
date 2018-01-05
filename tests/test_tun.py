@@ -6,6 +6,7 @@ import os
 import sliplib
 import string
 import struct
+import binascii
 
 from faradayio import faraday
 from scapy.all import IP
@@ -44,6 +45,6 @@ def test_tunSend():
     s.send(b'Hello, world')
     time.sleep(0.1)
     data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-    # print(type(repr(data)))
-    print(data)
+    print(IP(binascii.a2b_hex('4500002845f440004011e0ce0a0000010a000002c3cd270f0014e09a48656c6c6f2c20776f726c64')).load)
+    #print(data)
     s.close()
