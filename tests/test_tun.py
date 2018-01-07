@@ -8,6 +8,7 @@ import string
 import struct
 import binascii
 import dpkt
+import subprocess
 
 from faradayio import faraday
 from scapy.all import IP, UDP
@@ -39,6 +40,10 @@ def test_tunSend():
     # Start a TUN adapter
     faradayTUN = faraday.TunnelServer()
 
+    #sudo sysctl -w net.ipv6.conf.all.autoconf=0
+    #subprocess.run('sudo sysctl -w net.ipv6.conf.Faraday.autoconf=0', shell=True, stderr=subprocess.PIPE)
+
+
     # Send a string throught the IP
     HOST = faradayTUN._tun.dstaddr
     PORT = 9999 #  Anything
@@ -52,8 +57,9 @@ def test_tunSend():
     s.close()
 
     data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-    # Check for IPV4 since IPV6 packets sometime come down?
-    # print(IP(data[4:]).version == 6)
+
+    # Remove the first four bytes from the data since there is an ethertype
+    # header that should not be there from pytun
     payload = IP(data[4:]).load
 
     # Check that slip message was sent correctly over TunnelServer
