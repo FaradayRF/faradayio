@@ -9,6 +9,8 @@
 
 import sliplib
 import pytun
+import threading
+import time
 
 
 class Faraday(object):
@@ -89,3 +91,14 @@ class TunnelServer(object):
     def __del__(self):
         self._tun.down()
         print("TUN brought down...")
+
+
+class Monitor(threading.Thread):
+    def __init__(self, isRunning):
+        super().__init__()
+        self._isRunning = isRunning
+
+    def run(self):
+        while not self._isRunning.is_set():
+            print("test {0}".format(time.time()))
+            time.sleep(1)

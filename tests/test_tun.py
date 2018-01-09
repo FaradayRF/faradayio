@@ -9,6 +9,7 @@ import struct
 import binascii
 import dpkt
 import subprocess
+import threading
 
 from faradayio import faraday
 from scapy.all import IP, UDP
@@ -95,6 +96,11 @@ def test_tunSlipSend():
     PORT = 9999 #  Anything
 
     # TODO: Start the monitor thread
+    isRunning = threading.Event()
+    TUNMonitor = faraday.Monitor(isRunning)
+    TUNMonitor.start()
+    time.sleep(0.1) # Temporary
+
 
 
     # Just send asci lprintable data for now#
@@ -109,3 +115,6 @@ def test_tunSlipSend():
 
     # Check that slip message was sent correctly over TunnelServer
     assert msg == response
+
+    # Stop the threaded monitor
+    isRunning.set()
