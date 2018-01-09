@@ -12,6 +12,7 @@ import subprocess
 import threading
 
 from faradayio import faraday
+from tests.serialtestclass import SerialTestClass
 from scapy.all import IP, UDP
 
 def test_tunSetup():
@@ -88,33 +89,34 @@ def test_tunSlipSend():
     running a serial loopback test. Ensures data at the end of the loopback
     test is valid.
     """
-    # Start a TUN adapter
-    faradayTUN = faraday.TunnelServer()
-
+    # Create a test serial port
+    serialPort = SerialTestClass()
+    #
     # Configure the TUN adapter and socket port we aim to use to send data on
-    HOST = faradayTUN._tun.dstaddr
+    HOST = '10.0.0.2'
     PORT = 9999 #  Anything
 
     # TODO: Start the monitor thread
     isRunning = threading.Event()
-    TUNMonitor = faraday.Monitor(isRunning)
+    TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort)
     TUNMonitor.start()
-    time.sleep(0.1) # Temporary
-
-
+    # time.sleep(0.5) # Temporary
 
     # Just send asci lprintable data for now#
-    msg = bytes(string.printable, "utf-8")
+    # msg = bytes(string.printable, "utf-8")
+    msg = bytes("Hello, world!", "utf-8")
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect((HOST,PORT))
     s.send(msg)
-    s.close()
+
 
     # TODO: Read data back from TUN adapter after monitor thread loops it back
 
+    # Stop the threaded monitor
+    time.sleep(5)
+    isRunning.set()
+    s.close()
+
     # Check that slip message was sent correctly over TunnelServer
     assert msg == response
-
-    # Stop the threaded monitor
-    isRunning.set()

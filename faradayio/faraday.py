@@ -75,7 +75,9 @@ class Faraday(object):
         slipDriver.receive(ret)
 
         # Yield each message as a generator
+        print("Returned: {0}".format(ret))
         for item in slipDriver.messages:
+            print(item)
             yield item
 
 
@@ -94,11 +96,39 @@ class TunnelServer(object):
 
 
 class Monitor(threading.Thread):
-    def __init__(self, isRunning):
+    def __init__(self, isRunning, serialPort):
         super().__init__()
         self._isRunning = isRunning
+        self._serialPort = serialPort
+
+        # Start a TUN adapter
+        self._TUN = TunnelServer()
+
+        # Create a Faraday instance
+        self._faraday = Faraday(serialPort=serialPort)
+
+    def checkTUN(self):
+        """
+        Check the TUN tunnel for data to send over serial
+        """
+        data = self._TUN._tun.read(self._TUN._tun.mtu)
+        # print(data)
+        if data:
+            print("SENDING!")
+            ret = self._faraday.send(data)
+
+    def checkSerial(self):
+        """for item in faradayRadio.receive(res):
+        Check the serialport for data to send back over the TUN tunnel
+        """
+        # Does this need to be smart about how long/length to read?
+        # print(next(self._faraday.receive(1500)))
+        for item in self._faraday.receive(1500):
+            print("message: {0}".format(item))
 
     def run(self):
         while not self._isRunning.is_set():
             print("test {0}".format(time.time()))
-            time.sleep(1)
+            self.checkTUN()
+            self.checkSerial()
+            time.sleep(0.1)
