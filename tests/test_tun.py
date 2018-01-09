@@ -76,3 +76,36 @@ def test_tunSend():
 
     # Check that slip message was sent correctly over TunnelServer
     assert msg == payload
+
+
+def test_tunSlipSend():
+    """
+    Test SLIP data sent over the TUN adapter.
+
+    Start a TUN adapter and send data over it while a thread runs to receive
+    data sent over the tunnel and promptly send it over a serial port which is
+    running a serial loopback test. Ensures data at the end of the loopback
+    test is valid.
+    """
+    # Start a TUN adapter
+    faradayTUN = faraday.TunnelServer()
+
+    # Configure the TUN adapter and socket port we aim to use to send data on
+    HOST = faradayTUN._tun.dstaddr
+    PORT = 9999 #  Anything
+
+    # TODO: Start the monitor thread
+
+
+    # Just send asci lprintable data for now#
+    msg = bytes(string.printable, "utf-8")
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((HOST,PORT))
+    s.send(msg)
+    s.close()
+
+    # TODO: Read data back from TUN adapter after monitor thread loops it back
+
+    # Check that slip message was sent correctly over TunnelServer
+    assert msg == response
