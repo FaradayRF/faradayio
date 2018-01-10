@@ -11,7 +11,7 @@ import sliplib
 import pytun
 import threading
 import time
-
+from scapy.all import IP, UDP
 
 class Faraday(object):
     """A class that enables transfer of data between computer and Faraday
@@ -72,12 +72,13 @@ class Faraday(object):
         ret = self._serialPort.serialPort.read(length)
 
         # Decode data from slip format, stores msgs in sliplib.Driver.messages
-        slipDriver.receive(ret)
+        temp = slipDriver.receive(ret)
+        # print(temp)
 
         # Yield each message as a generator
-        print("Returned: {0}".format(ret))
-        for item in slipDriver.messages:
-            print(item)
+        # print("Returned: {0}".format(ret))
+        for item in temp:
+            # print("item {0}".format(item))
             yield item
 
 
@@ -88,6 +89,7 @@ class TunnelServer(object):
         self._tun.dstaddr = dstaddr
         self._tun.netmask = netmask
         self._tun.mtu = mtu
+        self._tun.persist(True)
         self._tun.up()
 
     def __del__(self):
@@ -114,21 +116,35 @@ class Monitor(threading.Thread):
         data = self._TUN._tun.read(self._TUN._tun.mtu)
         # print(data)
         if data:
-            print("SENDING!")
-            ret = self._faraday.send(data)
+            # print("SENDING!")
+
+            try:
+                if(IP(data[4:]).dport == 9999):
+                    print("checkTUN:\n{0}\n{1}".format(IP(data[4:]).summary(),IP(data[4:]).load))
+                    # TODO Do I need to strip off [4:] before sending?
+                    ret = self._faraday.send(data)
+                    # print("test")
+                    return ret
+
+            except AttributeError as error:
+                # AttributeError was encountered
+                # Tends to happen when no dport is in the packet
+                print("AttributeError")
 
     def checkSerial(self):
         """for item in faradayRadio.receive(res):
         Check the serialport for data to send back over the TUN tunnel
         """
+        print("checking serial!")
         # Does this need to be smart about how long/length to read?
         # print(next(self._faraday.receive(1500)))
         for item in self._faraday.receive(1500):
             print("message: {0}".format(item))
+            self._TUN._tun.write(item)
 
     def run(self):
         while not self._isRunning.is_set():
-            print("test {0}".format(time.time()))
+            print("test {0}\n".format(time.time()))
             self.checkTUN()
             self.checkSerial()
             time.sleep(0.1)

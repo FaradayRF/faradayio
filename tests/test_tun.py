@@ -64,13 +64,15 @@ def test_tunSend():
 
         try:
             if(IP(data[4:]).dport == PORT):
+                # print(IP(data[4:]).show())
                 break
 
         except AttributeError as error:
+            pass
             # AttributeError was encountered
             # Tends to happen when no dport is in the packet
-            print("AttributeError")
-            print(IP(data[4:]).show())
+            # print("AttributeError")
+
 
     # Remove the first four bytes from the data since there is an ethertype
     # header that should not be there from pytun
@@ -105,16 +107,19 @@ def test_tunSlipSend():
     # Just send asci lprintable data for now#
     # msg = bytes(string.printable, "utf-8")
     msg = bytes("Hello, world!", "utf-8")
+    # time.sleep(10)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect((HOST,PORT))
     s.send(msg)
-
+    time.sleep(1)
 
     # TODO: Read data back from TUN adapter after monitor thread loops it back
+    rxmsg = s.recv(1500)
+    print(rxmsg)
 
     # Stop the threaded monitor
-    time.sleep(5)
+    time.sleep(1)
     isRunning.set()
     s.close()
 
