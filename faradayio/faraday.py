@@ -77,9 +77,10 @@ class Faraday(object):
 
         # Yield each message as a generator
         # print("Returned: {0}".format(ret))
-        for item in temp:
-            # print("item {0}".format(item))
-            yield item
+        # for item in temp:
+        #     # print("item {0}".format(item))
+        #     yield item
+        return iter(temp)
 
 
 class TunnelServer(object):
@@ -109,6 +110,9 @@ class Monitor(threading.Thread):
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
 
+    # def rxTUN(self):
+
+
     def checkTUN(self):
         """
         Check the TUN tunnel for data to send over serial
@@ -119,14 +123,11 @@ class Monitor(threading.Thread):
 
         if data:
             # print("SENDING!")
+            print("test3")
 
             try:
-                # if(IP(data[4:]).dport == 9999):
-                IP(data[4:]).show()
-                # print("checkTUN:\n{0}\n{1}".format(IP(data[4:]).summary(),IP(data[4:]).load))
                 # TODO Do I need to strip off [4:] before sending?
                 ret = self._faraday.send(data)
-                print("Sent {0} bytes over serial...".format(ret))
                 return ret
 
             except AttributeError as error:
@@ -134,16 +135,15 @@ class Monitor(threading.Thread):
                 # Tends to happen when no dport is in the packet
                 print("AttributeError")
 
+    def rxSerial(self, length):
+        return(self._faraday.receive(length))
+
     def checkSerial(self):
         """for item in faradayRadio.receive(res):
         Check the serialport for data to send back over the TUN tunnel
         """
-        # print("checking serial!")
-        # Does this need to be smart about how long/length to read?
-        # print(next(self._faraday.receive(1500)))
-        for item in self._faraday.receive(1500):
-            IP(item[4:]).show()
-            # print("message: {0}".format(item))
+        # TODO don't hardcode
+        for item in rxSerial(1500):
             self._TUN._tun.write(item)
 
     def run(self):
