@@ -13,7 +13,7 @@ import threading
 
 from faradayio import faraday
 from tests.serialtestclass import SerialTestClass
-from scapy.all import IP, UDP
+from scapy.all import *
 
 def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
@@ -95,8 +95,10 @@ def test_tunSlipSend():
     serialPort = SerialTestClass()
     #
     # Configure the TUN adapter and socket port we aim to use to send data on
-    HOST = '10.0.0.2'
-    PORT = 9999 #  Anything
+    sourceHost = '10.0.0.1'
+    sourcePort = 9998
+    destHost = '10.0.0.2'
+    destPort = 9999 #  Anything
 
     # TODO: Start the monitor thread
     isRunning = threading.Event()
@@ -105,24 +107,25 @@ def test_tunSlipSend():
     TUNMonitor.start()
     # time.sleep(0.5) # Temporary
 
-    # Just send asci lprintable data for now#
-    # msg = bytes(string.printable, "utf-8")
-    msg = bytes("Hello, world!", "utf-8")
+    srcPacket = IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)
+    dstPacket1 = IP(dst=sourceHost, src=destHost)/UDP(sport=destPort, dport=sourcePort)
+
     # time.sleep(10)
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((HOST,PORT))
-    s.send(msg)
-    time.sleep(1)
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect((HOST,PORT))
+    sendp(srcPacket,iface="Faraday")
+    # sendp(packet1,iface="Faraday")
+    # time.sleep(1)
 
     # # TODO: Read data back from TUN adapter after monitor thread loops it back
     # rxmsg = s.recv(1500)
     # print(rxmsg)
     #
     # # Stop the threaded monitor
-    # time.sleep(1)
+    time.sleep(5)
     isRunning.set()
-    s.close()
+    # s.close()
 
     # Check that slip message was sent correctly over TunnelServer
     # assert msg == response

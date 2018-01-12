@@ -114,17 +114,20 @@ class Monitor(threading.Thread):
         Check the TUN tunnel for data to send over serial
         """
         data = self._TUN._tun.read(self._TUN._tun.mtu)
-        # print(data)
+        # IP(data[4:]).show()
+        # print(IP(data[4:]).dport)
+
         if data:
             # print("SENDING!")
 
             try:
-                if(IP(data[4:]).dport == 9999):
-                    print("checkTUN:\n{0}\n{1}".format(IP(data[4:]).summary(),IP(data[4:]).load))
-                    # TODO Do I need to strip off [4:] before sending?
-                    ret = self._faraday.send(data)
-                    # print("test")
-                    return ret
+                # if(IP(data[4:]).dport == 9999):
+                IP(data[4:]).show()
+                # print("checkTUN:\n{0}\n{1}".format(IP(data[4:]).summary(),IP(data[4:]).load))
+                # TODO Do I need to strip off [4:] before sending?
+                ret = self._faraday.send(data)
+                print("Sent {0} bytes over serial...".format(ret))
+                return ret
 
             except AttributeError as error:
                 # AttributeError was encountered
@@ -135,11 +138,12 @@ class Monitor(threading.Thread):
         """for item in faradayRadio.receive(res):
         Check the serialport for data to send back over the TUN tunnel
         """
-        print("checking serial!")
+        # print("checking serial!")
         # Does this need to be smart about how long/length to read?
         # print(next(self._faraday.receive(1500)))
         for item in self._faraday.receive(1500):
-            print("message: {0}".format(item))
+            IP(item[4:]).show()
+            # print("message: {0}".format(item))
             self._TUN._tun.write(item)
 
     def run(self):
