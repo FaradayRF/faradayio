@@ -108,15 +108,43 @@ def test_tunSlipSend():
 
     srcPacket = IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)
 
-    # Use scapy to send packet ofer Faraday
+    #
+    # Test TUN adapter obtaining packets
+    #
+
+    # Use scapy to send packet over Faraday
     # TODO Don't hardcode
     sendp(srcPacket,iface="Faraday")
 
     # Manually check TUN adapter for packets in the tunnel
     # This is necessary because the threads are not running this
-    TUNMonitor.checkTUN()
+    while True:
+        # Loop through packets until correct packet is returned
+        packet = TUNMonitor.checkTUN()
+        if packet:
+            if IP(packet[4:]).dst == destHost:
+                # Check that packet got through TUN without error
+                break
+    # Obtained IP packet to destination IP so check that it hasn't changed
+    assert packet[4:] == srcPacket.__bytes__()
+
+    #
+    # Test SLIP encoding/decoding of IP packet over serial port in loopback mode
+    #
+
+    # Send IP packet over serial port.
+    bytesSent = TUNMonitor.txSerial(packet)
+    assert bytesSent is not None    #  We expect some data sent
+    assert bytesSent > len(packet)  # We expect SLIP encoding to add bytes
 
     # TODO Don't hardcode
-    rx = TUNMonitor.rxSerial(1500)
-    for item in rx:
-        assert item[4:] == srcPacket.__bytes__()
+    # Receive data over serial port and check packets for test IP packet
+    rxBytes = TUNMonitor.rxSerial(1500)
+    for item in rxBytes:
+        # Iterate through packets and check for packet to destination IP
+        if IP(item[4:]).dst == destHost:
+            # Found IP packet to destination so break from loop
+            break
+        
+    # Check that the packet received over the serial loopback is the same as sent
+    assert item[4:] == packet[4:]

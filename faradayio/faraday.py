@@ -112,16 +112,20 @@ class Monitor(threading.Thread):
 
     # def rxTUN(self):
 
-
     def checkTUN(self):
+        packet = self._TUN._tun.read(self._TUN._tun.mtu)
+        return(packet)
+
+    def monitorTUN(self):
         """
         Check the TUN tunnel for data to send over serial
         """
-        data = self._TUN._tun.read(self._TUN._tun.mtu)
-        # IP(data[4:]).show()
-        # print(IP(data[4:]).dport)
+        # data = self._TUN._tun.read(self._TUN._tun.mtu)
 
-        if data:
+        # print(IP(data[4:]).dport)
+        packet = self.checkTUN()
+
+        if packet:
             # print("SENDING!")
             print("test3")
 
@@ -137,6 +141,10 @@ class Monitor(threading.Thread):
 
     def rxSerial(self, length):
         return(self._faraday.receive(length))
+
+    def txSerial(self, data):
+        return self._faraday.send(data)
+
 
     def checkSerial(self):
         """for item in faradayRadio.receive(res):
