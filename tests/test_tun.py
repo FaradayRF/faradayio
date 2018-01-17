@@ -115,7 +115,10 @@ def test_tunSlipSend():
     # Use scapy to send packet over Faraday
     # TODO Don't hardcode
     sendp(srcPacket,iface="Faraday")
-
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((HOST,PORT))
+    s.send(msg)
+    s.close()
     # Manually check TUN adapter for packets in the tunnel
     # This is necessary because the threads are not running this
     while True:
@@ -145,6 +148,59 @@ def test_tunSlipSend():
         if IP(item[4:]).dst == destHost:
             # Found IP packet to destination so break from loop
             break
-        
+
     # Check that the packet received over the serial loopback is the same as sent
     assert item[4:] == packet[4:]
+
+def test_serialToTUN():
+    """
+    Test serial port to TUN link. Don't need a serial port but just assume that
+    an IP packet was received from the serial port and properly decoded with
+    SLIP.
+    """
+    #
+    # Configure the TUN adapter and socket port we aim to use to send data on
+    sourceHost = '10.0.0.1'
+    sourcePort = 9998
+    destHost = '10.0.0.2'
+    destPort = 9999 #  Anything
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((sourceHost,sourcePort))
+
+    # Create a test serial port
+    serialPort = SerialTestClass()
+
+    # TODO: Start the monitor thread
+    TUNMonitor = faraday.Monitor(isRunning=False, serialPort=serialPort)
+
+    # testTUN = faraday.TunnelServer(addr='10.0.0.3',dstaddr='10.0.0.5',name="Faraday2")
+
+    packet = Ether(type=0x800)/IP(dst=sourceHost, src=destHost, id=1, len=1200, chksum = 0)/UDP(sport=destPort, dport=sourcePort)
+
+    # del packet[IP].chksum
+    # packet[IP].show2()
+    sendp(packet)
+    # packet[IP].show2()
+    # time.sleep(15)
+
+    # ethertype = bytes("\x08\x00", "utf-8")
+    # print(ethertype)
+
+    while True:
+        # TUNMonitor._TUN._tun.write(packet[4:].__bytes__())
+        # print(packet)
+        # packet2 = ethertype + packet.__bytes__()
+        print(packet)
+        # Ether()/packet
+        # print(packet)
+        # packet.show()
+        TUNMonitor._TUN._tun.write(packet.__bytes__())
+        # sendp(packet,iface="Faraday")
+        # packet.show()
+        time.sleep(0.1)
+    # while True:
+    #     print("Receiving")
+    #     print(s.recv(10))
+    #
+    #
+    # s.close()

@@ -84,8 +84,8 @@ class Faraday(object):
 
 
 class TunnelServer(object):
-    def __init__(self, addr='10.0.0.1', dstaddr='10.0.0.2', netmask='255.255.255.0', mtu=1500):
-        self._tun = pytun.TunTapDevice(name='Faraday')
+    def __init__(self, addr='10.0.0.1', dstaddr='10.0.0.2', netmask='255.255.255.0', mtu=1500, name="Faraday"):
+        self._tun = pytun.TunTapDevice(name=name)
         self._tun.addr = addr
         self._tun.dstaddr = dstaddr
         self._tun.netmask = netmask
