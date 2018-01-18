@@ -99,13 +99,13 @@ class TunnelServer(object):
 
 
 class Monitor(threading.Thread):
-    def __init__(self, isRunning, serialPort):
+    def __init__(self, isRunning, serialPort, name, addr,dstaddr):
         super().__init__()
         self._isRunning = isRunning
         self._serialPort = serialPort
 
         # Start a TUN adapter
-        self._TUN = TunnelServer()
+        self._TUN = TunnelServer(name=name,addr=addr,dstaddr=dstaddr)
 
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)

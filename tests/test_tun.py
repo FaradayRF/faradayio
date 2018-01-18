@@ -7,7 +7,7 @@ import sliplib
 import string
 import struct
 import binascii
-import dpkt
+# import dpkt
 import subprocess
 import threading
 
@@ -158,49 +158,113 @@ def test_serialToTUN():
     an IP packet was received from the serial port and properly decoded with
     SLIP.
     """
+    # Create a test serial port
+    serialPort = SerialTestClass()
+    serialPort2 = SerialTestClass()
+
+
     #
     # Configure the TUN adapter and socket port we aim to use to send data on
     sourceHost = '10.0.0.1'
     sourcePort = 9998
     destHost = '10.0.0.2'
     destPort = 9999 #  Anything
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((sourceHost,sourcePort))
-
-    # Create a test serial port
-    serialPort = SerialTestClass()
 
     # TODO: Start the monitor thread
-    TUNMonitor = faraday.Monitor(isRunning=False, serialPort=serialPort)
+    isRunning = threading.Event()
+    TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort, name="Faraday",addr=sourceHost,dstaddr=destHost)
+    TUNMonitor2 = faraday.Monitor(isRunning=isRunning, serialPort=serialPort2, name="Faraday2",addr=destHost,dstaddr=sourceHost)
 
-    # testTUN = faraday.TunnelServer(addr='10.0.0.3',dstaddr='10.0.0.5',name="Faraday2")
+    os.system('ip link set Faraday up')
+    os.system('ip address add 10.0.0.1/32 dev Faraday')
+    os.system('ip route add 10.0.0.2 dev Faraday')
+    os.system('ip address add 10.0.0.2/32 dev Faraday2')
+    os.system('ip route add 10.0.0.1 dev Faraday2')
 
-    packet = Ether(type=0x800)/IP(dst=sourceHost, src=destHost, id=1, len=1200, chksum = 0)/UDP(sport=destPort, dport=sourcePort)
+    srcPacket = IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, World!"
+    srcPacket2 = IP(dst=sourceHost, src=destHost)/UDP(sport=destPort, dport=sourcePort)/"Hello, World2!"
 
-    # del packet[IP].chksum
-    # packet[IP].show2()
-    sendp(packet)
-    # packet[IP].show2()
-    # time.sleep(15)
+    #
+    # Test TUN adapter obtaining packets
+    #
 
-    # ethertype = bytes("\x08\x00", "utf-8")
-    # print(ethertype)
+    # Use scapy to send packet over Faraday
+    # TODO Don't hardcode
+    # while True:
+
+        # time.sleep(0.1)
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect((sourceHost,sourcePort))
+    # s.send(msg)
+    # s.close()
+    # Manually check TUN adapter for packets in the tunnel
+    # This is necessary because the threads are not running this
 
     while True:
-        # TUNMonitor._TUN._tun.write(packet[4:].__bytes__())
-        # print(packet)
-        # packet2 = ethertype + packet.__bytes__()
-        print(packet)
-        # Ether()/packet
-        # print(packet)
-        # packet.show()
-        TUNMonitor._TUN._tun.write(packet.__bytes__())
-        # sendp(packet,iface="Faraday")
-        # packet.show()
-        time.sleep(0.1)
+        # print("Looping...")
+        sendp(srcPacket2,iface="Faraday")
+        # sendp(srcPacket2,iface="Faraday")
+        # Loop through packets until correct packet is returned
+        packet = TUNMonitor.checkTUN()
+        if packet:
+            print(packet)
+            # IP(packet[4:]).show()
+            TUNMonitor2._TUN._tun.write(packet)
+    # Obtained IP packet to destination IP so check that it hasn't changed
+    # assert packet[4:] == srcPacket.__bytes__()
+
+
+
+
+
     # while True:
-    #     print("Receiving")
-    #     print(s.recv(10))
+    #     # Loop through packets until correct packet is returned
+    #     packet = TUNMonitor.checkTUN()
+    #     if packet:
+    #         if IP(packet[4:]).dst == destHost:
+    #             # Check that packet got through TUN without error
+    #             break
+    # # Obtained IP packet to destination IP so check that it hasn't changed
+    # assert packet[4:] == srcPacket.__bytes__()
+
+
+
+
+
     #
+    # Test SLIP encoding/decoding of IP packet over serial port in loopback mode
     #
+
+    # Send IP packet over second TUN device
+    # IP(packet[4:]).show()
+    # Ether(packet).show()
+
+    # Configure the TUN adapter and socket port we aim to use to send data on
+    # sourceHost = '10.0.0.2'
+    # sourcePort = 9999
+    # destHost = '10.0.0.1'
+    # destPort = 9998 #  Anything
+
+    # TUNMonitor2 = faraday.Monitor(isRunning=isRunning, serialPort=serialPort2, name="Faraday2", addr=sourceHost,dstaddr=destHost)
+    #
+    # os.system('ip link set Faraday2 up')
+    # os.system('ip address add 10.0.0.2/24 dev Faraday2')
+    # os.system('ip route add 10.0.0.2/24 dev Faraday2')
+    #
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect((sourceHost,sourcePort))
+    # print(s)
+    # # s.send(msg)
+    # # s.close()
+    #
+    # # while True:
+    # TUNMonitor._TUN._tun.write(packet)
+    # IP(packet[4:]).show()
+    # time.sleep(0.1)
+    # print("receiving")
+    #
+    # rxPacket = s.recv(150)
+    # # rxPacket = TUNMonitor2.checkTUN()
+    # print(rxPacket)
+    # isRunning = False
     # s.close()
