@@ -173,45 +173,18 @@ def test_serialToTUN():
     # TODO: Start the monitor thread
     isRunning = threading.Event()
     TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort, name="Faraday",addr=sourceHost,dstaddr=destHost)
-    TUNMonitor2 = faraday.Monitor(isRunning=isRunning, serialPort=serialPort2, name="Faraday2",addr=destHost,dstaddr=sourceHost)
 
     os.system('ip link set Faraday up')
     os.system('ip address add 10.0.0.1/32 dev Faraday')
-    os.system('ip route add 10.0.0.2 dev Faraday')
-    os.system('ip address add 10.0.0.2/32 dev Faraday2')
-    os.system('ip route add 10.0.0.1 dev Faraday2')
+    # os.system('ip route add 10.0.0.2 dev Faraday')
 
-    srcPacket = IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, World!"
-    srcPacket2 = IP(dst=sourceHost, src=destHost)/UDP(sport=destPort, dport=sourcePort)/"Hello, World2!"
-
-    #
-    # Test TUN adapter obtaining packets
-    #
-
-    # Use scapy to send packet over Faraday
-    # TODO Don't hardcode
-    # while True:
-
-        # time.sleep(0.1)
-    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # s.connect((sourceHost,sourcePort))
-    # s.send(msg)
-    # s.close()
-    # Manually check TUN adapter for packets in the tunnel
-    # This is necessary because the threads are not running this
+    srcPacket = IP(dst=sourceHost, src=destHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, World!"
 
     while True:
-        # print("Looping...")
-        sendp(srcPacket2,iface="Faraday")
-        # sendp(srcPacket2,iface="Faraday")
-        # Loop through packets until correct packet is returned
-        packet = TUNMonitor.checkTUN()
-        if packet:
-            print(packet)
-            # IP(packet[4:]).show()
-            TUNMonitor2._TUN._tun.write(packet)
-    # Obtained IP packet to destination IP so check that it hasn't changed
-    # assert packet[4:] == srcPacket.__bytes__()
+        print(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
+        TUNMonitor._TUN._tun.write(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
+        time.sleep(0.1)
+
 
 
 
