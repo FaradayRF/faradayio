@@ -160,10 +160,7 @@ def test_serialToTUN():
     """
     # Create a test serial port
     serialPort = SerialTestClass()
-    serialPort2 = SerialTestClass()
 
-
-    #
     # Configure the TUN adapter and socket port we aim to use to send data on
     sourceHost = '10.0.0.1'
     sourcePort = 9998
@@ -174,17 +171,8 @@ def test_serialToTUN():
     isRunning = threading.Event()
     TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort, name="Faraday",addr=sourceHost,dstaddr=destHost)
 
-    os.system('ip link set Faraday up')
-    os.system('ip address add 10.0.0.1/32 dev Faraday')
-    # os.system('ip route add 10.0.0.2 dev Faraday')
-
-    srcPacket = IP(dst=sourceHost, src=destHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, World!"
-
     while True:
-        print(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
+        srcPacket = IP(dst=sourceHost, src=destHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, World! {0}\n".format(time.time())
+        # print(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
         TUNMonitor._TUN._tun.write(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
-        time.sleep(0.1)
-
-    # print(rxPacket)
-    # isRunning = False
-    # s.close()
+        # time.sleep(0.1)
