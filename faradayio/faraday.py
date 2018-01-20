@@ -151,7 +151,7 @@ class Monitor(threading.Thread):
         Check the serialport for data to send back over the TUN tunnel
         """
         # TODO don't hardcode
-        for item in rxSerial(1500):
+        for item in self.rxSerial(1500):
             self._TUN._tun.write(item)
 
     def run(self):

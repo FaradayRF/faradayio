@@ -156,23 +156,35 @@ def test_serialToTUN():
     """
     Test serial port to TUN link. Don't need a serial port but just assume that
     an IP packet was received from the serial port and properly decoded with
-    SLIP.
+    SLIP. Send it to the TUN and verify that the IP:PORT receives the message.
     """
-    # Create a test serial port
+    # Create a test serial port for TUN Monitor class. Won't be used.
     serialPort = SerialTestClass()
 
-    # Configure the TUN adapter and socket port we aim to use to send data on
-    sourceHost = '10.0.0.1'
+    # Configure TUN IP:PORT and IP Packet source IP:PORT parameters for test
+    sourceAddress = '10.0.0.2'
     sourcePort = 9998
-    destHost = '10.0.0.2'
-    destPort = 9999 #  Anything
+    tunAddress = '10.0.0.1'
+    tunPort = 9999
 
-    # TODO: Start the monitor thread
     isRunning = threading.Event()
-    TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort, name="Faraday",addr=sourceHost,dstaddr=destHost)
+    # isRunning.set()
+    TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort, name="Faraday",addr=tunAddress,dstaddr=sourceAddress)
+    TUNMonitor.start()
 
-    while True:
-        srcPacket = IP(dst=sourceHost, src=destHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, World! {0}\n".format(time.time())
-        # print(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
-        TUNMonitor._TUN._tun.write(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
-        # time.sleep(0.1)
+    message = "Hello, World! {0}".format(time.time())
+    etherType = b"\x00\x00\x08\x00"
+    packet = IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/message
+    TUNMonitor._TUN._tun.write(etherType + packet.__bytes__())
+
+
+    # Kill thread
+    isRunning.set()
+
+
+
+    # while True:
+    #     srcPacket = IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/"Hello, World! {0}\n".format(time.time())
+    #     # print(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
+    #     TUNMonitor._TUN._tun.write(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
+    #     # time.sleep(0.1)
