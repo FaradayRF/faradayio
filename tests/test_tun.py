@@ -167,24 +167,25 @@ def test_serialToTUN():
     tunAddress = '10.0.0.1'
     tunPort = 9999
 
-    isRunning = threading.Event()
-    # isRunning.set()
-    TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort, name="Faraday",addr=tunAddress,dstaddr=sourceAddress)
-    TUNMonitor.start()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort, name="Faraday",addr=tunAddress,dstaddr=sourceAddress)
+    # TUNMonitor.start()
 
-    message = "Hello, World! {0}".format(time.time())
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind(('10.0.0.1', 9999))
+
+    message = bytes("Hello, World! {0}".format(time.time()),"utf-8")
     etherType = b"\x00\x00\x08\x00"
     packet = IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/message
     TUNMonitor._TUN._tun.write(etherType + packet.__bytes__())
+    # faraday.Monitor._TUN._tun.write(etherType + packet.__bytes__())
 
+
+    data, address = s.recvfrom(4096)
+    assert data == message
+    print(TUNMonitor._isRunning)
 
     # Kill thread
-    isRunning.set()
-
-
-
-    # while True:
-    #     srcPacket = IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/"Hello, World! {0}\n".format(time.time())
-    #     # print(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
-    #     TUNMonitor._TUN._tun.write(b"\x00\x00\x08\x00" + srcPacket.__bytes__())
-    #     # time.sleep(0.1)
+    # TUNMonitor._isRunning.set()
+    print(TUNMonitor._isRunning.is_set())
+    # TUNMonitor.stop()
+    s.close()
