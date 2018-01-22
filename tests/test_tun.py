@@ -103,8 +103,7 @@ def test_tunSlipSend():
     destPort = 9999 #  Anything
 
     # TODO: Start the monitor thread
-    isRunning = threading.Event()
-    TUNMonitor = faraday.Monitor(isRunning=isRunning, serialPort=serialPort)
+    TUNMonitor = faraday.Monitor(serialPort=serialPort, name="Faraday", addr=sourceHost, dstaddr=destHost)
 
     srcPacket = IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)
 
@@ -116,8 +115,8 @@ def test_tunSlipSend():
     # TODO Don't hardcode
     sendp(srcPacket,iface="Faraday")
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((HOST,PORT))
-    s.send(msg)
+    s.connect((sourceHost,sourcePort))
+    s.send(b"Hello, world!")
     s.close()
     # Manually check TUN adapter for packets in the tunnel
     # This is necessary because the threads are not running this
