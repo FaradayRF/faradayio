@@ -84,72 +84,61 @@ def test_tunSend():
 
 def test_tunSlipSend():
     """
-    Test SLIP data sent over the TUN adapter.
+    Test SLIP data sent over the TUN adapter and serial port.
 
     Start a TUN adapter and send data over it while a thread runs to receive
     data sent over the tunnel and promptly send it over a serial port which is
     running a serial loopback test. Ensures data at the end of the loopback
-    test is valid.
+    test is valid when received over serial. This test does not cover serial
+    to TUN/IP nor IP to TUN data validation.
     """
     # Create a test serial port
     serialPort = SerialTestClass()
 
-
-    #
     # Configure the TUN adapter and socket port we aim to use to send data on
-    sourceHost = '10.0.0.1'
+    sourceHost = '10.0.0.1'  # IP of the TUN adapter
     sourcePort = 9998
     destHost = '10.0.0.2'
-    destPort = 9999 #  Anything
+    destPort = 9999
 
-    # TODO: Start the monitor thread
+    # Start the monitor
     TUNMonitor = faraday.Monitor(serialPort=serialPort, name="Faraday", addr=sourceHost, dstaddr=destHost)
 
-    srcPacket = IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)
-
-    #
-    # Test TUN adapter obtaining packets
-    #
+    srcPacket = (IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, world!").__bytes__()
 
     # Use scapy to send packet over Faraday
-    # TODO Don't hardcode
     sendp(srcPacket,iface="Faraday")
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((sourceHost,sourcePort))
-    s.send(b"Hello, world!")
-    s.close()
+
     # Manually check TUN adapter for packets in the tunnel
-    # This is necessary because the threads are not running this
+    # This is necessary because the threads are not running
     while True:
         # Loop through packets until correct packet is returned
         packet = TUNMonitor.checkTUN()
         if packet:
-            if IP(packet[4:]).dst == destHost:
+            # Strip etherType off of IP packet
+            ipPacketSerialTX = packet[4:]
+            if IP(ipPacketSerialTX).dst == destHost:
                 # Check that packet got through TUN without error
                 break
     # Obtained IP packet to destination IP so check that it hasn't changed
-    assert packet[4:] == srcPacket.__bytes__()
+    assert ipPacketSerialTX == srcPacket
 
-    #
-    # Test SLIP encoding/decoding of IP packet over serial port in loopback mode
-    #
-
-    # Send IP packet over serial port.
+    # Manually send IP packet over serial port including etherType.
     bytesSent = TUNMonitor.txSerial(packet)
     assert bytesSent is not None    #  We expect some data sent
     assert bytesSent > len(packet)  # We expect SLIP encoding to add bytes
 
-    # TODO Don't hardcode
     # Receive data over serial port and check packets for test IP packet
-    rxBytes = TUNMonitor.rxSerial(1500)
+    rxBytes = TUNMonitor.rxSerial(TUNMonitor._TUN._tun.mtu)
     for item in rxBytes:
+        ipPacketSerialRX = item[4:]
         # Iterate through packets and check for packet to destination IP
-        if IP(item[4:]).dst == destHost:
+        if IP(ipPacketSerialRX).dst == destHost:
             # Found IP packet to destination so break from loop
             break
 
     # Check that the packet received over the serial loopback is the same as sent
-    assert item[4:] == packet[4:]
+    assert ipPacketSerialRX == ipPacketSerialTX
 
 def test_serialToTUN():
     """
