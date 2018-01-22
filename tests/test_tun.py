@@ -167,25 +167,26 @@ def test_serialToTUN():
     tunAddress = '10.0.0.1'
     tunPort = 9999
 
+    # Start a TUN Monitor class
     TUNMonitor = faraday.Monitor(serialPort=serialPort, name="Faraday",addr=tunAddress,dstaddr=sourceAddress)
-    # TUNMonitor.start()
 
+    # Open a socket for UDP packets and bind it to the TUN address:port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind(('10.0.0.1', 9999))
 
+    # Create simple IP packet with message. Send to TUN address:port
     message = bytes("Hello, World! {0}".format(time.time()),"utf-8")
     etherType = b"\x00\x00\x08\x00"
-    packet = IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/message
-    TUNMonitor._TUN._tun.write(etherType + packet.__bytes__())
-    # faraday.Monitor._TUN._tun.write(etherType + packet.__bytes__())
+    packet = etherType + (IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/message).__bytes__()
 
+    # Write a simple message over the TUN, no need for checker thread
+    TUNMonitor._TUN._tun.write(packet)
 
+    # Receive data from the socket bound to the TUN address:port
     data, address = s.recvfrom(4096)
-    assert data == message
-    print(TUNMonitor._isRunning)
 
-    # Kill thread
-    # TUNMonitor._isRunning.set()
-    print(TUNMonitor._isRunning.is_set())
-    # TUNMonitor.stop()
+    # Check that data written to TUN matches data received from socket
+    assert data == message
+
+    # Close the socket
     s.close()
