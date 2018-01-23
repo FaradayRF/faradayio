@@ -3,7 +3,7 @@
 # Import modules
 import asyncio
 import serial
-import serial_asyncio
+# import serial_asyncio
 
 
 class SerialTestClass(object):
@@ -17,10 +17,10 @@ class SerialTestClass(object):
             serial.serial_for_url(url=self._port,
                                   timeout=self._timeout,
                                   baudrate=self._baudrate)
-        self.asyncSerialPort = \
-            serial_asyncio.open_serial_connection(url=self._port,
-                                                  timeout=self._timeout,
-                                                  baudrate=self._baudrate)
+        # self.asyncSerialPort = \
+        #     serial_asyncio.open_serial_connection(url=self._port,
+        #                                           timeout=self._timeout,
+        #                                           baudrate=self._baudrate)
 
     def _run(coro):
         """Run the coroutine"""
