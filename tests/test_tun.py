@@ -1,19 +1,20 @@
-import pytest
-import pytun
+# import pytest
+# import pytun
 import socket
 import time
 import os
-import sliplib
+# import sliplib
 import string
-import struct
-import binascii
+# import struct
+# import binascii
 # import dpkt
-import subprocess
-import threading
+# import subprocess
+# import threading
 
 from faradayio import faraday
 from tests.serialtestclass import SerialTestClass
-from scapy.all import *
+from scapy.all import UDP, IP, sendp
+
 
 def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
@@ -25,6 +26,7 @@ def test_tunSetup():
     assert faradayTUN._tun.netmask == '255.255.255.0'
     assert faradayTUN._tun.mtu == 1500
 
+
 def test_tunStart():
     """Start a Faraday TUN adapter and ping it"""
     faradayTUN = faraday.TunnelServer()
@@ -32,6 +34,7 @@ def test_tunStart():
 
     # Check that response == 0 which means TUN adapter started
     assert response == 0
+
 
 def test_tunSend():
     """
@@ -42,19 +45,15 @@ def test_tunSend():
     # Start a TUN adapter
     faradayTUN = faraday.TunnelServer()
 
-    #sudo sysctl -w net.ipv6.conf.all.autoconf=0
-    #subprocess.run('sudo sysctl -w net.ipv6.conf.Faraday.autoconf=0', shell=True, stderr=subprocess.PIPE)
-
-
     # Send a string throught the IP
     HOST = faradayTUN._tun.dstaddr
-    PORT = 9999 #  Anything
+    PORT = 9999  # Anything
 
     # Just send asci lprintable data for now
     msg = bytes(string.printable, "utf-8")
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((HOST,PORT))
+    s.connect((HOST, PORT))
     s.send(msg)
     s.close()
 
@@ -72,7 +71,6 @@ def test_tunSend():
             # AttributeError was encountered
             # Tends to happen when no dport is in the packet
             # print("AttributeError")
-
 
     # Remove the first four bytes from the data since there is an ethertype
     # header that should not be there from pytun
@@ -102,12 +100,18 @@ def test_tunSlipSend():
     destPort = 9999
 
     # Start the monitor
-    TUNMonitor = faraday.Monitor(serialPort=serialPort, name="Faraday", addr=sourceHost, dstaddr=destHost)
+    TUNMonitor = faraday.Monitor(serialPort=serialPort,
+                                 name="Faraday",
+                                 addr=sourceHost,
+                                 dstaddr=destHost)
 
-    srcPacket = (IP(dst=destHost, src=sourceHost)/UDP(sport=sourcePort, dport=destPort)/"Hello, world!").__bytes__()
+    srcPacket = (IP(dst=destHost,
+                    src=sourceHost) /
+                 UDP(sport=sourcePort,
+                 dport=destPort) / "Hello, world!").__bytes__()
 
     # Use scapy to send packet over Faraday
-    sendp(srcPacket,iface="Faraday")
+    sendp(srcPacket, iface="Faraday")
 
     # Manually check TUN adapter for packets in the tunnel
     # This is necessary because the threads are not running
@@ -125,7 +129,7 @@ def test_tunSlipSend():
 
     # Manually send IP packet over serial port including etherType.
     bytesSent = TUNMonitor.txSerial(packet)
-    assert bytesSent is not None    #  We expect some data sent
+    assert bytesSent is not None    # We expect some data sent
     assert bytesSent > len(packet)  # We expect SLIP encoding to add bytes
 
     # Receive data over serial port and check packets for test IP packet
@@ -137,8 +141,9 @@ def test_tunSlipSend():
             # Found IP packet to destination so break from loop
             break
 
-    # Check that the packet received over the serial loopback is the same as sent
+    # Check that the packet received over the serial loopback == same as sent
     assert ipPacketSerialRX == ipPacketSerialTX
+
 
 def test_serialToTUN():
     """
@@ -156,16 +161,22 @@ def test_serialToTUN():
     tunPort = 9999
 
     # Start a TUN Monitor class
-    TUNMonitor = faraday.Monitor(serialPort=serialPort, name="Faraday",addr=tunAddress,dstaddr=sourceAddress)
+    TUNMonitor = faraday.Monitor(serialPort=serialPort,
+                                 name="Faraday",
+                                 addr=tunAddress,
+                                 dstaddr=sourceAddress)
 
     # Open a socket for UDP packets and bind it to the TUN address:port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind(('10.0.0.1', 9999))
 
     # Create simple IP packet with message. Send to TUN address:port
-    message = bytes("Hello, World! {0}".format(time.time()),"utf-8")
+    message = bytes("Hello, World! {0}".format(time.time()), "utf-8")
     etherType = b"\x00\x00\x08\x00"
-    packet = etherType + (IP(dst=tunAddress, src=sourceAddress)/UDP(sport=sourcePort, dport=tunPort)/message).__bytes__()
+    packet = etherType + (IP(dst=tunAddress,
+                             src=sourceAddress) /
+                          UDP(sport=sourcePort,
+                              dport=tunPort)/message).__bytes__()
 
     # Write a simple message over the TUN, no need for checker thread
     TUNMonitor._TUN._tun.write(packet)
