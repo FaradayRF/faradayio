@@ -11,7 +11,7 @@ import sliplib
 import pytun
 import threading
 import time
-from scapy.all import IP, UDP
+
 
 class Faraday(object):
     """A class that enables transfer of data between computer and Faraday
@@ -84,7 +84,11 @@ class Faraday(object):
 
 
 class TunnelServer(object):
-    def __init__(self, addr='10.0.0.1', dstaddr='10.0.0.2', netmask='255.255.255.0', mtu=1500, name="Faraday"):
+    def __init__(self, addr='10.0.0.1',
+                 dstaddr='10.0.0.2',
+                 netmask='255.255.255.0',
+                 mtu=1500,
+                 name="Faraday"):
         self._tun = pytun.TunTapDevice(name=name)
         self._tun.addr = addr
         self._tun.dstaddr = dstaddr
@@ -99,13 +103,13 @@ class TunnelServer(object):
 
 
 class Monitor(threading.Thread):
-    def __init__(self, serialPort, name, addr,dstaddr):
+    def __init__(self, serialPort, name, addr, dstaddr):
         super().__init__()
         self._isRunning = threading.Event()
         self._serialPort = serialPort
 
         # Start a TUN adapter
-        self._TUN = TunnelServer(name=name,addr=addr,dstaddr=dstaddr)
+        self._TUN = TunnelServer(name=name, addr=addr, dstaddr=dstaddr)
 
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
@@ -131,7 +135,7 @@ class Monitor(threading.Thread):
 
             try:
                 # TODO Do I need to strip off [4:] before sending?
-                ret = self._faraday.send(data)
+                ret = self._faraday.send(packet)
                 return ret
 
             except AttributeError as error:
@@ -144,7 +148,6 @@ class Monitor(threading.Thread):
 
     def txSerial(self, data):
         return self._faraday.send(data)
-
 
     def checkSerial(self):
         """for item in faradayRadio.receive(res):
