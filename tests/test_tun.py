@@ -1,15 +1,6 @@
-# import pytest
-# import pytun
 import socket
 import time
-import os
-# import sliplib
 import string
-# import struct
-# import binascii
-# import dpkt
-# import subprocess
-# import threading
 
 from faradayio import faraday
 from tests.serialtestclass import SerialTestClass
@@ -25,15 +16,6 @@ def test_tunSetup():
     assert faradayTUN._tun.addr == '10.0.0.1'
     assert faradayTUN._tun.netmask == '255.255.255.0'
     assert faradayTUN._tun.mtu == 1500
-
-
-def test_tunStart():
-    """Start a Faraday TUN adapter and ping it"""
-    faradayTUN = faraday.TunnelServer()
-    response = os.system("ping -c 1 10.0.0.1")
-
-    # Check that response == 0 which means TUN adapter started
-    assert response == 0
 
 
 def test_tunSend():
