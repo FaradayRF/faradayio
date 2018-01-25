@@ -85,13 +85,11 @@ class Faraday(object):
 
 class TunnelServer(object):
     def __init__(self, addr='10.0.0.1',
-                 dstaddr='10.0.0.2',
                  netmask='255.255.255.0',
                  mtu=1500,
                  name="Faraday"):
         self._tun = pytun.TunTapDevice(name=name)
         self._tun.addr = addr
-        self._tun.dstaddr = dstaddr
         self._tun.netmask = netmask
         self._tun.mtu = mtu
         self._tun.persist(True)
@@ -103,13 +101,13 @@ class TunnelServer(object):
 
 
 class Monitor(threading.Thread):
-    def __init__(self, serialPort, name, addr, dstaddr):
+    def __init__(self, serialPort, name, addr, mtu):
         super().__init__()
         self._isRunning = threading.Event()
         self._serialPort = serialPort
 
         # Start a TUN adapter
-        self._TUN = TunnelServer(name=name, addr=addr, dstaddr=dstaddr)
+        self._TUN = TunnelServer(name=name, addr=addr, mtu=mtu)
 
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
