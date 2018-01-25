@@ -28,7 +28,7 @@ def test_tunSend():
     faradayTUN = faraday.TunnelServer()
 
     # Send a string throught the IP
-    HOST = faradayTUN._tun.dstaddr
+    HOST = "10.0.0.2"
     PORT = 9999  # Anything
 
     # Just send asci lprintable data for now
@@ -85,7 +85,7 @@ def test_tunSlipSend():
     TUNMonitor = faraday.Monitor(serialPort=serialPort,
                                  name="Faraday",
                                  addr=sourceHost,
-                                 dstaddr=destHost)
+                                 mtu=1500)
 
     srcPacket = (IP(dst=destHost,
                     src=sourceHost) /
@@ -146,7 +146,7 @@ def test_serialToTUN():
     TUNMonitor = faraday.Monitor(serialPort=serialPort,
                                  name="Faraday",
                                  addr=tunAddress,
-                                 dstaddr=sourceAddress)
+                                 mtu=1500)
 
     # Open a socket for UDP packets and bind it to the TUN address:port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
