@@ -79,7 +79,8 @@ class Faraday(object):
 
 
 class TunnelServer(object):
-    """A class which creates a TUN/TAP device for Faraday uses.
+    """
+    A class which creates a TUN/TAP device for Faraday uses.
 
     Creates a basic TUN/TAP adapter with generic values for use with Faraday.
     Also provides a method to close TUN/TAP when the class is destroyed.
@@ -112,6 +113,7 @@ class TunnelServer(object):
 
 
 class Monitor(threading.Thread):
+
     def __init__(self, serialPort, name, addr, mtu):
         super().__init__()
         self._isRunning = threading.Event()
