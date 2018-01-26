@@ -113,7 +113,19 @@ class TunnelServer(object):
 
 
 class Monitor(threading.Thread):
+    """
+    A class which inherits from threading.Thread to provide TUN/TAP monitors
 
+    Inherits from threading.Thread and is designed to be run as a thread. This
+    provides functions which can be used to monitor the TUN/TAP adapter and
+    send/receive data when it arrives over TUN or serial.
+
+    Attributes:
+        serialPort: Pyserial instance for a serial port
+        name: Name of TUN/TAP device to be created by the monitor
+        addr: IP address of the TUN/TAP device to be created
+        mtu: Maximum Transmission Unit of TUN/TAP adapter TODO delete?
+    """
     def __init__(self, serialPort, name, addr, mtu):
         super().__init__()
         self._isRunning = threading.Event()
@@ -125,25 +137,27 @@ class Monitor(threading.Thread):
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
 
-    # def rxTUN(self):
 
     def checkTUN(self):
+        """
+        Checks the TUN adapter for data and returns any that is found.
+
+        Returns:
+            packet: Data read from the TUN adapter
+        """
         packet = self._TUN._tun.read(self._TUN._tun.mtu)
         return(packet)
 
     def monitorTUN(self):
         """
-        Check the TUN tunnel for data to send over serial
-        """
-        # data = self._TUN._tun.read(self._TUN._tun.mtu)
+        Monitors the TUN adapter and sends data over serial port.
 
-        # print(IP(data[4:]).dport)
+        Returns:
+            ret: Number of bytes sent over serial port
+        """
         packet = self.checkTUN()
 
         if packet:
-            # print("SENDING!")
-            print("test3")
-
             try:
                 # TODO Do I need to strip off [4:] before sending?
                 ret = self._faraday.send(packet)
@@ -151,24 +165,48 @@ class Monitor(threading.Thread):
 
             except AttributeError as error:
                 # AttributeError was encountered
-                # Tends to happen when no dport is in the packet
                 print("AttributeError")
 
     def rxSerial(self, length):
+        """
+        Checks the serial port for data and returns any that is found.
+
+        Args:
+            length: Number of bytes to read from serial port
+
+        Returns:
+            data: Data received from serial port
+        """
         return(self._faraday.receive(length))
 
     def txSerial(self, data):
+        """
+        Sends data over serial port.
+
+        Args:
+            data: Data to be sent over serial port
+
+        Returns:
+            length: Number of bytes sent over serial port
+        """
         return self._faraday.send(data)
 
     def checkSerial(self):
-        """for item in faradayRadio.receive(res):
-        Check the serialport for data to send back over the TUN tunnel
+        """
+        Check the serial port for data to write to the TUN adapter.
         """
         # TODO don't hardcode
         for item in self.rxSerial(1500):
             self._TUN._tun.write(item)
 
     def run(self):
+        """
+        Wrapper function for TUN and serial port monitoring
+
+        Wraps the necessary functions to loop over until self._isRunning
+        threading.Event() is set(). This checks for data on the TUN/serial
+        interfaces and then sends data over the appropriate interface.
+        """
         while not self._isRunning.is_set():
             print("test {0}\n".format(time.time()))
             self.checkTUN()
