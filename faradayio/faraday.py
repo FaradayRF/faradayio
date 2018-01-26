@@ -16,6 +16,9 @@ import time
 class Faraday(object):
     """A class that enables transfer of data between computer and Faraday
 
+    This class interfaces a Faraday over a serial port. All it simply does is
+    properly encode/decode SLIP packets.
+
     Attributes:
         _serialPort (serial instance): Pyserial serial port instance.
     """
@@ -24,7 +27,7 @@ class Faraday(object):
         self._serialPort = serialPort
 
     def send(self, msg):
-        """Converts data to slip format then sends over serial port
+        """Encodes data to slip protocol and then sends over serial port
 
         Uses the SlipLib module to convert the message data into SLIP format.
         The message is then sent over the serial port opened with the instance
@@ -50,18 +53,17 @@ class Faraday(object):
         return res
 
     def receive(self, length):
-        """Reads in data from a serial port (length bytes), decodes slip
+        """Reads in data from a serial port (length bytes), decodes SLIP packets
 
-        A generator function which reads the serial port opened with the
-        instance of Faraday used to read() and then uses the SlipLib module to
-        convert the SLIP format into bytes. Each message received is added to a
-        receive buffer in SlipLib which is then yielded.
+        A function which reads from the serial port and then uses the SlipLib
+        module to decode the SLIP protocol packets. Each message received
+        is added to a receive buffer in SlipLib which is then returned.
 
         Args:
             length (int): Length to receive with serialPort.read(length)
 
-        Yields:
-            bytes: The next message in the receive buffer
+        Returns:
+            bytes: An iterator of the receive buffer
 
         """
 
@@ -73,13 +75,6 @@ class Faraday(object):
 
         # Decode data from slip format, stores msgs in sliplib.Driver.messages
         temp = slipDriver.receive(ret)
-        # print(temp)
-
-        # Yield each message as a generator
-        # print("Returned: {0}".format(ret))
-        # for item in temp:
-        #     # print("item {0}".format(item))
-        #     yield item
         return iter(temp)
 
 
