@@ -47,7 +47,7 @@ class Faraday(object):
         slipData = slipDriver.send(msg)
 
         # Send data over serial port
-        res = self._serialPort.serialPort.iwrite(slipData)
+        res = self._serialPort.serialPort.write(slipData)
 
         # Return number of bytes transmitted over serial port
         return res
