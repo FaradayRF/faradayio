@@ -47,7 +47,7 @@ class Faraday(object):
         slipData = slipDriver.send(msg)
 
         # Send data over serial port
-        res = self._serialPort.serialPort.write(slipData)
+        res = self._serialPort.serialPort.iwrite(slipData)
 
         # Return number of bytes transmitted over serial port
         return res
@@ -79,6 +79,17 @@ class Faraday(object):
 
 
 class TunnelServer(object):
+    """A class which creates a TUN/TAP device for Faraday uses.
+
+    Creates a basic TUN/TAP adapter with generic values for use with Faraday.
+    Also provides a method to close TUN/TAP when the class is destroyed.
+
+    Attributes:
+        addr: IP address of TUN/TAP adapter
+        netmask: Netmask of TUN/TAP adapter
+        mtu: Maximum Transmission Unit for TUN/TAP adapter
+        name: Name of TUN/TAP adapter
+    """
     def __init__(self, addr='10.0.0.1',
                  netmask='255.255.255.0',
                  mtu=1500,
@@ -87,10 +98,15 @@ class TunnelServer(object):
         self._tun.addr = addr
         self._tun.netmask = netmask
         self._tun.mtu = mtu
+
+        # Set TUN persistance to True and bring TUN up
         self._tun.persist(True)
         self._tun.up()
 
     def __del__(self):
+        """
+        Clean up TUN when the TunnelServer class is destroyed
+        """
         self._tun.down()
         print("TUN brought down...")
 
