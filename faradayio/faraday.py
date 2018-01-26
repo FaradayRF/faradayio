@@ -194,8 +194,7 @@ class Monitor(threading.Thread):
         """
         Check the serial port for data to write to the TUN adapter.
         """
-        # TODO don't hardcode
-        for item in self.rxSerial(1500):
+        for item in self.rxSerial(self._TUN._tun.mtu):
             self._TUN._tun.write(item)
 
     def run(self):
