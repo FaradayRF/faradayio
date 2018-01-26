@@ -137,7 +137,6 @@ class Monitor(threading.Thread):
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
 
-
     def checkTUN(self):
         """
         Checks the TUN adapter for data and returns any that is found.
