@@ -207,7 +207,5 @@ class Monitor(threading.Thread):
         interfaces and then sends data over the appropriate interface.
         """
         while not self._isRunning.is_set():
-            print("test {0}\n".format(time.time()))
             self.checkTUN()
             self.checkSerial()
-            time.sleep(0.1)
