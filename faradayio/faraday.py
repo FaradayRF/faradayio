@@ -10,7 +10,6 @@
 import sliplib
 import pytun
 import threading
-import time
 
 
 class Faraday(object):
