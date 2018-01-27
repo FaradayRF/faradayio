@@ -13,4 +13,4 @@ install:
 script:
   - flake8 --exclude docs/ .
 #  - pytest --ignore=tests/test_tun.py tests/
-  - sudo python3 -m "~/virtualenv/python3.5/bin/pytest tests/"
+  - sudo ~/virtualenv/python3.5/bin/python3 -m "pytest tests/"
