@@ -93,8 +93,8 @@ def test_tunSlipSend():
     # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
     srcPacket = (IP(dst=destHost,
                     src=TUNMonitor._TUN._tun.addr) /
-                    UDP(sport=9998,
-                    dport=destPort) / "Hello, world!").__bytes__()
+                 UDP(sport=9998,
+                     dport=destPort) / "Hello, world!").__bytes__()
 
     # Use scapy to send packet over Faraday
     sendp(srcPacket, iface=TUNMonitor._TUN._tun.name)
