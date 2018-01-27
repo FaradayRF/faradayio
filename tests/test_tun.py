@@ -42,17 +42,13 @@ def test_tunSend():
     # Loop through packets received until packet is received from correct port
     while True:
         data = faradayTUN._tun.read(faradayTUN._tun.mtu)
-
         try:
             if(IP(data[4:]).dport == PORT):
-                # print(IP(data[4:]).show())
                 break
 
         except AttributeError as error:
-            pass
             # AttributeError was encountered
-            # Tends to happen when no dport is in the packet
-            # print("AttributeError")
+            pass
 
     # Remove the first four bytes from the data since there is an ethertype
     # header that should not be there from pytun
