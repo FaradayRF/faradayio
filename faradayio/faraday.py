@@ -90,10 +90,10 @@ class TunnelServer(object):
         mtu: Maximum Transmission Unit for TUN/TAP adapter
         name: Name of TUN/TAP adapter
     """
-    def __init__(self, addr='10.0.0.1',
-                 netmask='255.255.255.0',
-                 mtu=1500,
-                 name="Faraday"):
+    def __init__(self, addr,
+                 netmask,
+                 mtu,
+                 name):
         self._tun = pytun.TunTapDevice(name=name)
         self._tun.addr = addr
         self._tun.netmask = netmask
@@ -125,13 +125,21 @@ class Monitor(threading.Thread):
         addr: IP address of the TUN/TAP device to be created
         mtu: Maximum Transmission Unit of TUN/TAP adapter TODO delete?
     """
-    def __init__(self, serialPort, name="Faraday", addr='10.0.0.1', mtu=1500):
+    def __init__(self,
+                 serialPort,
+                 name="Faraday",
+                 addr='10.0.0.1',
+                 netmask='255.255.255.0',
+                 mtu=1500):
         super().__init__()
         self._isRunning = threading.Event()
         self._serialPort = serialPort
 
         # Start a TUN adapter
-        self._TUN = TunnelServer(name=name, addr=addr, mtu=mtu)
+        self._TUN = TunnelServer(name=name,
+                                 addr=addr,
+                                 netmask=netmask,
+                                 mtu=mtu)
 
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)

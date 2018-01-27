@@ -9,13 +9,18 @@ from scapy.all import UDP, IP, sendp
 
 def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
-    faradayTUN = faraday.TunnelServer()
+
+    # Create a test serial port
+    serialPort = SerialTestClass()
+
+    # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
+    faradayTUN = faraday.Monitor(serialPort=serialPort)
 
     # Check defaults
-    assert faradayTUN._tun.name == 'Faraday'
-    assert faradayTUN._tun.addr == '10.0.0.1'
-    assert faradayTUN._tun.netmask == '255.255.255.0'
-    assert faradayTUN._tun.mtu == 1500
+    assert faradayTUN._TUN._tun.name == 'Faraday'
+    assert faradayTUN._TUN._tun.addr == '10.0.0.1'
+    assert faradayTUN._TUN._tun.netmask == '255.255.255.0'
+    assert faradayTUN._TUN._tun.mtu == 1500
 
 
 def test_tunSend():
@@ -24,8 +29,11 @@ def test_tunSend():
     over a socket connection through the TUN while using pytun to receive the
     data and check that the IP payload is valid with scapy.
     """
-    # Start a TUN adapter
-    faradayTUN = faraday.TunnelServer()
+    # Create a test serial port
+    serialPort = SerialTestClass()
+
+    # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
+    faradayTUN = faraday.Monitor(serialPort=serialPort)
 
     # Send a string throught the IP
     HOST = "10.0.0.2"
@@ -41,7 +49,7 @@ def test_tunSend():
 
     # Loop through packets received until packet is received from correct port
     while True:
-        data = faradayTUN._tun.read(faradayTUN._tun.mtu)
+        data = faradayTUN._TUN._tun.read(faradayTUN._TUN._tun.mtu)
 
         # Remove ethertype and convert to IP packet with scapy
         packet = IP(data[4:])
