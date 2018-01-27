@@ -75,25 +75,21 @@ def test_tunSlipSend():
     # Create a test serial port
     serialPort = SerialTestClass()
 
-    # Configure the TUN adapter and socket port we aim to use to send data on
-    sourceHost = '10.0.0.1'  # IP of the TUN adapter
-    sourcePort = 9998
+    # Configure destination IP:port
     destHost = '10.0.0.2'
     destPort = 9999
 
     # Start the monitor
-    TUNMonitor = faraday.Monitor(serialPort=serialPort,
-                                 name="Faraday",
-                                 addr=sourceHost,
-                                 mtu=1500)
+    TUNMonitor = faraday.Monitor(serialPort=serialPort)
 
+    # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
     srcPacket = (IP(dst=destHost,
-                    src=sourceHost) /
-                 UDP(sport=sourcePort,
-                 dport=destPort) / "Hello, world!").__bytes__()
+                    src=TUNMonitor._TUN._tun.addr) /
+                    UDP(sport=9998,
+                    dport=destPort) / "Hello, world!").__bytes__()
 
     # Use scapy to send packet over Faraday
-    sendp(srcPacket, iface="Faraday")
+    sendp(srcPacket, iface=TUNMonitor._TUN._tun.name)
 
     # Manually check TUN adapter for packets in the tunnel
     # This is necessary because the threads are not running

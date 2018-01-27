@@ -125,7 +125,7 @@ class Monitor(threading.Thread):
         addr: IP address of the TUN/TAP device to be created
         mtu: Maximum Transmission Unit of TUN/TAP adapter TODO delete?
     """
-    def __init__(self, serialPort, name, addr, mtu):
+    def __init__(self, serialPort, name="Faraday", addr='10.0.0.1', mtu=1500):
         super().__init__()
         self._isRunning = threading.Event()
         self._serialPort = serialPort
