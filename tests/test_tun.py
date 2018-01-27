@@ -42,8 +42,12 @@ def test_tunSend():
     # Loop through packets received until packet is received from correct port
     while True:
         data = faradayTUN._tun.read(faradayTUN._tun.mtu)
+
+        # Remove ethertype and convert to IP packet with scapy
+        packet = IP(data[4:])
+
         try:
-            if(IP(data[4:]).dport == PORT):
+            if(packet.dport == PORT):
                 break
 
         except AttributeError as error:
@@ -52,7 +56,7 @@ def test_tunSend():
 
     # Remove the first four bytes from the data since there is an ethertype
     # header that should not be there from pytun
-    payload = IP(data[4:]).load
+    payload = packet.load
 
     # Check that slip message was sent correctly over TunnelServer
     assert msg == payload
