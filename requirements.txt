@@ -12,3 +12,4 @@ scapy-python3==0.23
 six==1.11.0
 sliplib==0.3.0
 sphinx-rtd-theme==0.2.4
+coveralls==1.2.0
