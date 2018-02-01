@@ -3,7 +3,7 @@ setup(
     name='faradayio',
     packages=['faradayio'],
     version='0.0.1',
-    description='FaradayRF Asynchronous input/output module and program',
+    description='FaradayRF TUN/TAP adapter',
     author='FaradayRF',
     author_email='Support@FaradayRF.com',
     url='https://github.com/FaradayRF/faradayio',

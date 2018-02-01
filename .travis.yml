@@ -1,14 +1,17 @@
+sudo: required
+dist: trusty
 language: python
 python:
-  - "3.5"
-
-# Install dependencies
+- '3.5'
 install:
-  - pip install -r requirements.txt
-  - git clone https://github.com/rhjdjong/SlipLib.git
-  - pip install SlipLib
-
-# Run tests
+- "~/virtualenv/python3.5/bin/pip3 install -r requirements.txt"
 script:
-  - "flake8 --exclude .venv/,docs/,SlipLib/ ."
-  - pytest tests/
+- "~/virtualenv/python3.5/bin/flake8 --exclude docs/ ."
+- sudo ~/virtualenv/python3.5/bin/pytest tests/
+- sudo ~/virtualenv/python3.5/bin/python3 -m coverage run ~/virtualenv/python3.5/bin/pytest
+- coveralls
+deploy:
+  provider: pypi
+  user: "KB1LQC"
+  password:
+    secure: EqQ5i1mVqBVOFa/hI7GbEE5MxJuFzV27d90qHfxNxa5lwYqu05mN5uTh3QHdUK75LehJqxvJvb0MNgj3tX5n9Dyef/tbho/YZvKPqdgLiHhIS7zQyqZQ0b3zB0gqG2gxfEZv68qD+EtMYR8UGh2CLEQGQBsG5Qap2VsWMmusS4M52kU321p3nkr8D+PBln9ggG1kEa0y+eQchCr3JbnY4dLb8G0H24yEpt9KSfbulcNFfJW2DP4RQ83zQKU1eU2/gpr6V71WP8YLv9uR8NC1p/iv6WlA1AJUSaHI6KvLZej/0GNz8MxPmqbvTR+6gkAzRoA/rz5ZIe9wgUywCEvMwXERdYT22KB1KhDtwovh+5rj4/DupGYcDb/zxlcuMy6LpDB0/QrWuL2uVudqaEnUpawqUNNCsubifmpkvP+A/iCRez6iMEcdt6nlQZMDlUQgFZsNcvwOVTjWiJF+/UM88StNd0wmkGxkDZWS6nkiWV31sIczFMFgbjAPyoJHS6I3yEwEC9juFjDYYfQ8KI3aKpW+zEFZOT/FjJ/nkqX6gtRQoYfib82wKx3JQezQeR/aTwG5Wx6rlV98ZAenuQyT+t+jAM2dhrzIkspZ0VJMu+I46owHYt7DjE0Y4bj2Wf8SSABUPNuZnZy8FVZpVw+fWVKbBC6C47IQcvHgIJqwdVk=
