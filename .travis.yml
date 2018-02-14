@@ -11,6 +11,8 @@ script:
 - sudo ~/virtualenv/python3.5/bin/python3 -m coverage run ~/virtualenv/python3.5/bin/pytest
 - coveralls
 deploy:
+  on:
+    branch: develop
   provider: pypi
   user: KB1LQC
 env:
