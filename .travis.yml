@@ -9,7 +9,7 @@ script:
 - "~/virtualenv/python3.5/bin/flake8 --exclude docs/ ."
 - sudo ~/virtualenv/python3.5/bin/pytest tests/
 - sudo ~/virtualenv/python3.5/bin/python3 -m coverage run ~/virtualenv/python3.5/bin/pytest
-- coveralls
+after_script: cd ~
 deploy:
   provider: pypi
   user: KB1LQC
