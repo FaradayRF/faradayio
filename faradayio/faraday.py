@@ -135,7 +135,7 @@ class Monitor(threading.Thread):
                  netmask='255.255.255.0',
                  mtu=1500):
         super().__init__()
-        self._isRunning = isRunning
+        self.isRunning = isRunning
         self._serialPort = serialPort
 
         # Start a TUN adapter
@@ -207,7 +207,7 @@ class Monitor(threading.Thread):
         for item in self.rxSerial(self._TUN._tun.mtu):
             self._TUN._tun.write(item)
 
-    def run(self, isRunning):
+    def run(self):
         """
         Wrapper function for TUN and serial port monitoring
 
@@ -217,7 +217,7 @@ class Monitor(threading.Thread):
         function is automatically run when Threading.start() is called on the
         Monitor class.
         """
-        while isRunning.is_set():
+        while self.isRunning.is_set():
             self.checkTUN()
             self.checkSerial()
 
