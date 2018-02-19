@@ -48,7 +48,7 @@ class Faraday(object):
         slipData = slipDriver.send(msg)
 
         # Send data over serial port
-        res = self._serialPort.serialPort.write(slipData)
+        res = self._serialPort.write(slipData)
 
         # Return number of bytes transmitted over serial port
         return res
@@ -72,10 +72,12 @@ class Faraday(object):
         slipDriver = sliplib.Driver()
 
         # Receive data from serial port
-        ret = self._serialPort.serialPort.read(length)
+        ret = self._serialPort.read(length)
 
         # Decode data from slip format, stores msgs in sliplib.Driver.messages
         temp = slipDriver.receive(ret)
+        if temp:
+            print(temp)
         return iter(temp)
 
 
@@ -222,7 +224,8 @@ class Monitor(threading.Thread):
         while self.isRunning.is_set():
             try:
                 try:
-                    self.checkTUN()
+                    # self.checkTUN()
+                    self.monitorTUN()
 
                 except timeout_decorator.TimeoutError as error:
                     # No data received so just move on
