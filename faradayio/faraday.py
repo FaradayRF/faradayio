@@ -122,6 +122,7 @@ class Monitor(threading.Thread):
 
     Attributes:
         serialPort: Pyserial instance for a serial port
+        isRunning: Threading event to signal thread exit
         name: Name of TUN/TAP device to be created by the monitor
         addr: IP address of the TUN/TAP device to be created
         mtu: Maximum Transmission Unit of TUN/TAP adapter TODO delete?
@@ -212,7 +213,9 @@ class Monitor(threading.Thread):
 
         Wraps the necessary functions to loop over until self._isRunning
         threading.Event() is set(). This checks for data on the TUN/serial
-        interfaces and then sends data over the appropriate interface.
+        interfaces and then sends data over the appropriate interface. This
+        function is automatically run when Threading.start() is called on the
+        Monitor class.
         """
         while isRunning.is_set():
             self.checkTUN()
