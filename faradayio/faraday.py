@@ -76,8 +76,6 @@ class Faraday(object):
 
         # Decode data from slip format, stores msgs in sliplib.Driver.messages
         temp = slipDriver.receive(ret)
-        if temp:
-            print(temp)
         return iter(temp)
 
 
@@ -150,7 +148,7 @@ class Monitor(threading.Thread):
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
 
-    @timeout_decorator.timeout(0.1, use_signals=False)
+    @timeout_decorator.timeout(1, use_signals=False)
     def checkTUN(self):
         """
         Checks the TUN adapter for data and returns any that is found.
@@ -209,7 +207,12 @@ class Monitor(threading.Thread):
         Check the serial port for data to write to the TUN adapter.
         """
         for item in self.rxSerial(self._TUN._tun.mtu):
-            self._TUN._tun.write(item)
+            # print("about to send: {0}".format(item))
+            try:
+                self._TUN._tun.write(item)
+            except pytun.Error as error:
+                print("pytun error writing: {0}".format(item))
+                print(error)
 
     def run(self):
         """
