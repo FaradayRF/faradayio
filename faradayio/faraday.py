@@ -128,12 +128,13 @@ class Monitor(threading.Thread):
     """
     def __init__(self,
                  serialPort,
+                 isRunning,
                  name="Faraday",
                  addr='10.0.0.1',
                  netmask='255.255.255.0',
                  mtu=1500):
         super().__init__()
-        self._isRunning = threading.Event()
+        self._isRunning = isRunning
         self._serialPort = serialPort
 
         # Start a TUN adapter
@@ -171,7 +172,7 @@ class Monitor(threading.Thread):
                 return ret
 
             except AttributeError as error:
-                # AttributeError was encountered
+                # AttributeError was encounteredthreading.Event()
                 print("AttributeError")
 
     def rxSerial(self, length):
@@ -205,7 +206,7 @@ class Monitor(threading.Thread):
         for item in self.rxSerial(self._TUN._tun.mtu):
             self._TUN._tun.write(item)
 
-    def run(self):
+    def run(self, isRunning):
         """
         Wrapper function for TUN and serial port monitoring
 
@@ -213,7 +214,7 @@ class Monitor(threading.Thread):
         threading.Event() is set(). This checks for data on the TUN/serial
         interfaces and then sends data over the appropriate interface.
         """
-        while not self._isRunning.is_set():
+        while isRunning.is_set():
             self.checkTUN()
             self.checkSerial()
 
