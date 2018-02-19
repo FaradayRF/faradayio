@@ -11,6 +11,7 @@ import sliplib
 import pytun
 import threading
 import serial
+import timeout_decorator
 
 
 class Faraday(object):
@@ -147,6 +148,7 @@ class Monitor(threading.Thread):
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
 
+    @timeout_decorator.timeout(0.1, use_signals=False)
     def checkTUN(self):
         """
         Checks the TUN adapter for data and returns any that is found.
@@ -218,8 +220,16 @@ class Monitor(threading.Thread):
         Monitor class.
         """
         while self.isRunning.is_set():
-            self.checkTUN()
-            self.checkSerial()
+            try:
+                try:
+                    self.checkTUN()
+
+                except timeout_decorator.TimeoutError as error:
+                    # No data received so just move on
+                    pass
+                self.checkSerial()
+            except KeyboardInterrupt:
+                break
 
 
 class SerialTestClass(object):
