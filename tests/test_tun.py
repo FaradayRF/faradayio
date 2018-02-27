@@ -153,7 +153,9 @@ def test_serialToTUN():
     destPort = 9999
 
     # Start a TUN Monitor class
-    TUNMonitor = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort, isRunning=isRunning)
 
     # Open a socket for UDP packets and bind it to the TUN address:port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
