@@ -95,7 +95,8 @@ def test_tunSlipSend():
     # Start the monitor
     isRunning = threading.Event()
     isRunning.set()
-    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort, isRunning=isRunning)
+    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort,
+                                 isRunning=isRunning)
 
     # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
     srcPacket = (IP(dst=destHost,
@@ -155,7 +156,8 @@ def test_serialToTUN():
     # Start a TUN Monitor class
     isRunning = threading.Event()
     isRunning.set()
-    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort, isRunning=isRunning)
+    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort,
+                                 isRunning=isRunning)
 
     # Open a socket for UDP packets and bind it to the TUN address:port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
