@@ -93,7 +93,9 @@ def test_tunSlipSend():
     destPort = 9999
 
     # Start the monitor
-    TUNMonitor = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort, isRunning=isRunning)
 
     # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
     srcPacket = (IP(dst=destHost,
