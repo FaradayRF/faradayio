@@ -15,4 +15,3 @@ class SerialTestClass(object):
             serial.serial_for_url(url=self._port,
                                   timeout=self._timeout,
                                   baudrate=self._baudrate)
-                                  
