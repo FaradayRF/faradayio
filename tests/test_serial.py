@@ -3,15 +3,15 @@ import sliplib
 import string
 
 from faradayio import faraday
-from tests.serialtestclass import SerialTestClass
+# from tests.serialtestclass import SerialTestClass
 
 
 def test_socketOne():
     """Simple test to make sure loopback serial port created successfully"""
-    serialPort = SerialTestClass()
+    serialInstance = SerialTestClass()
     testStr = "Hello World!"
-    serialPort.serialPort.write(testStr.encode(encoding='utf_8'))
-    res = serialPort.serialPort.read(len(testStr))
+    serialInstance.serialPort.write(testStr.encode(encoding='utf_8'))
+    res = serialInstance.serialPort.read(len(testStr))
 
     assert res.decode("utf-8") == testStr
 

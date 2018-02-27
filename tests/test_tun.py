@@ -4,7 +4,6 @@ import string
 import threading
 
 from faradayio import faraday
-from tests.serialtestclass import SerialTestClass
 from scapy.all import UDP, IP, sendp
 
 
