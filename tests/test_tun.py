@@ -1,6 +1,7 @@
 import socket
 import time
 import string
+import threading
 
 from faradayio import faraday
 from tests.serialtestclass import SerialTestClass
@@ -14,13 +15,15 @@ def test_tunSetup():
     serialPort = SerialTestClass()
 
     # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
-    faradayTUN = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort, isRunning=isRunning)
 
     # Check defaults
-    assert faradayTUN._TUN._tun.name == 'Faraday'
-    assert faradayTUN._TUN._tun.addr == '10.0.0.1'
-    assert faradayTUN._TUN._tun.netmask == '255.255.255.0'
-    assert faradayTUN._TUN._tun.mtu == 1500
+    assert TUNMonitor._TUN._tun.name == 'Faraday'
+    assert TUNMonitor._TUN._tun.addr == '10.0.0.1'
+    assert TUNMonitor._TUN._tun.netmask == '255.255.255.0'
+    assert TUNMonitor._TUN._tun.mtu == 1500
 
 
 def test_tunSend():
