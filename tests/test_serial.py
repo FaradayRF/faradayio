@@ -77,15 +77,15 @@ def test_serialParamaterizedSynchReceive(test_input):
     """
 
     # Create class object necessary for test
-    serialPort = SerialTestClass()
+    serialInstance = SerialTestClass()
     slip = sliplib.Driver()
-    faradayRadio = faraday.Faraday(serialPort)
+    faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
     # Create slip message to test against
     slipMsg = slip.send(test_input)
 
     # Use serial to send raw transmission with slip protocol
-    res = serialPort.serialPort.write(slipMsg)
+    res = serialInstance.serialPort.write(slipMsg)
 
     # Receive data from Faraday which yields each item it parses from slip
     for item in faradayRadio.receive(res):
