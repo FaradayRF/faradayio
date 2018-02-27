@@ -36,7 +36,9 @@ def test_tunSend():
     serialPort = SerialTestClass()
 
     # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
-    faradayTUN = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort, isRunning=isRunning)
 
     # Send a string throught the IP
     HOST = "10.0.0.2"
@@ -52,7 +54,7 @@ def test_tunSend():
 
     # Loop through packets received until packet is received from correct port
     while True:
-        data = faradayTUN._TUN._tun.read(faradayTUN._TUN._tun.mtu)
+        data = TUNMonitor._TUN._tun.read(TUNMonitor._TUN._tun.mtu)
 
         # Remove ethertype and convert to IP packet with scapy
         packet = IP(data[4:])
