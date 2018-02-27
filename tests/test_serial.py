@@ -36,8 +36,8 @@ def test_socketOne():
 ])
 def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
-    serialPort = SerialTestClass()
-    faradayRadio = faraday.Faraday(serialPort)
+    serialInstance = SerialTestClass()
+    faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
     # Create slip message to test against
     slipMsg = sliplib.encode(test_input)
@@ -46,7 +46,7 @@ def test_serialParamaterizedSynchSend(test_input):
     res = faradayRadio.send(test_input)
 
     # Use serial to receive raw transmission with slip protocol
-    ret = serialPort.serialPort.read(res)
+    ret = serialInstance.serialPort.read(res)
 
     # Check that the returned data from the serial port == slipMsg
     assert ret == slipMsg
