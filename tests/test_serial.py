@@ -8,7 +8,7 @@ from faradayio import faraday
 
 def test_socketOne():
     """Simple test to make sure loopback serial port created successfully"""
-    serialInstance = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     testStr = "Hello World!"
     serialInstance.serialPort.write(testStr.encode(encoding='utf_8'))
     res = serialInstance.serialPort.read(len(testStr))
@@ -36,7 +36,7 @@ def test_socketOne():
 ])
 def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
-    serialInstance = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
     # Create slip message to test against
@@ -77,7 +77,7 @@ def test_serialParamaterizedSynchReceive(test_input):
     """
 
     # Create class object necessary for test
-    serialInstance = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     slip = sliplib.Driver()
     faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
