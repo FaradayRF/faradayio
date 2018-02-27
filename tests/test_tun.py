@@ -4,7 +4,6 @@ import string
 import threading
 
 from faradayio import faraday
-from tests.serialtestclass import SerialTestClass
 from scapy.all import UDP, IP, sendp
 
 
@@ -12,7 +11,8 @@ def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
 
     # Create a test serial port
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
     isRunning = threading.Event()
@@ -33,7 +33,8 @@ def test_tunSend():
     data and check that the IP payload is valid with scapy.
     """
     # Create a test serial port
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
     isRunning = threading.Event()
@@ -86,7 +87,8 @@ def test_tunSlipSend():
     to TUN/IP nor IP to TUN data validation.
     """
     # Create a test serial port
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Configure destination IP:port
     destHost = '10.0.0.2'
@@ -95,7 +97,7 @@ def test_tunSlipSend():
     # Start the monitor
     isRunning = threading.Event()
     isRunning.set()
-    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort,
+    TUNMonitor = faraday.Monitor(serialPort=serialPort,
                                  isRunning=isRunning)
 
     # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
@@ -146,7 +148,8 @@ def test_serialToTUN():
     SLIP. Send it to the TUN and verify that the IP:PORT receives the message.
     """
     # Create a test serial port for TUN Monitor class. Won't be used.
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Configure TUN IP:PORT and IP Packet source IP:PORT parameters for test
     sourceAddress = '10.0.0.2'
@@ -156,7 +159,7 @@ def test_serialToTUN():
     # Start a TUN Monitor class
     isRunning = threading.Event()
     isRunning.set()
-    TUNMonitor = faraday.Monitor(serialPort=serialPort.serialPort,
+    TUNMonitor = faraday.Monitor(serialPort=serialPort,
                                  isRunning=isRunning)
 
     # Open a socket for UDP packets and bind it to the TUN address:port

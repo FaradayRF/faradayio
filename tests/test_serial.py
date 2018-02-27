@@ -3,15 +3,15 @@ import sliplib
 import string
 
 from faradayio import faraday
-from tests.serialtestclass import SerialTestClass
+# from tests.serialtestclass import SerialTestClass
 
 
 def test_socketOne():
     """Simple test to make sure loopback serial port created successfully"""
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     testStr = "Hello World!"
-    serialPort.serialPort.write(testStr.encode(encoding='utf_8'))
-    res = serialPort.serialPort.read(len(testStr))
+    serialInstance.serialPort.write(testStr.encode(encoding='utf_8'))
+    res = serialInstance.serialPort.read(len(testStr))
 
     assert res.decode("utf-8") == testStr
 
@@ -36,7 +36,7 @@ def test_socketOne():
 ])
 def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
-    serialInstance = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
     # Create slip message to test against
@@ -77,7 +77,7 @@ def test_serialParamaterizedSynchReceive(test_input):
     """
 
     # Create class object necessary for test
-    serialInstance = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     slip = sliplib.Driver()
     faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
