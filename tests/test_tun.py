@@ -2,6 +2,7 @@ import socket
 import time
 import string
 import threading
+import pytest
 
 from faradayio import faraday
 from scapy.all import UDP, IP, sendp
@@ -185,3 +186,19 @@ def test_serialToTUN():
 
     # Close the socket
     s.close()
+
+
+@pytest.mark.skipif(
+    faraday.SerialTestClass.isPortAvailable() is False,
+    reason="Hardware not connected")
+def test_tunHardwareSendLoop():
+    """
+    Test SLIP data sent over the TUN adapter and a real serial port.
+
+    Start a TUN adapter and send data over it while a thread runs to receive
+    data sent over the tunnel and promptly send it over a serial port. Ensures
+    data at the end of the loopback test is valid when received over serial.
+    This test is skipped if no hardware is connected.
+    """
+    # Fail test as this is a placeholder for when we test hardware
+    assert 1 == 0
