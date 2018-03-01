@@ -13,6 +13,8 @@ import threading
 import serial
 import timeout_decorator
 
+import serial.tools.list_ports
+
 
 class Faraday(object):
     """A class that enables transfer of data between computer and Faraday
@@ -249,3 +251,25 @@ class SerialTestClass(object):
             serial.serial_for_url(url=self._port,
                                   timeout=self._timeout,
                                   baudrate=self._baudrate)
+
+    def isPortAvailable(port='/dev/ttyUSB0'):
+        '''
+        Checks whether specified port is available.
+
+        Source code derived from @lqdev suggestion per #38
+
+        Args:
+            port: Serial port location i.e. 'COM1'. Default is /dev/ttyUSB0
+
+        Returns:
+            available: Boolean value indicating presence of port
+        '''
+        isPortAvailable = serial.tools.list_ports.grep(port)
+
+        try:
+            next(isPortAvailable)
+            available = True
+        except StopIteration:
+            available = False
+
+        return available
