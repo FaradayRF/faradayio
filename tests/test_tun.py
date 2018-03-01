@@ -204,8 +204,9 @@ def test_tunHardwareSendLoop():
     serialInstance = faraday.SerialTestClass()
     serialPort = serialInstance.serialPort
 
-    # Configure destination IP:port
-    destHost = '10.0.0.2'
+    # Configure TUN IP:PORT and IP Packet source IP:PORT parameters for test
+    sourceAddress = '10.0.0.2'
+    sourcePort = 9998
     destPort = 9999
 
     # Start the monitor
@@ -214,11 +215,28 @@ def test_tunHardwareSendLoop():
     TUNMonitor = faraday.Monitor(serialPort=serialPort,
                                  isRunning=isRunning)
 
-    # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
-    srcPacket = (IP(dst=destHost,
-                    src=TUNMonitor._TUN._tun.addr) /
-                 UDP(sport=9998,
-                     dport=destPort) / "Hello, world!").__bytes__()
+    # Open a socket for UDP packets and bind it to the TUN address:port
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind((TUNMonitor._TUN._tun.addr, destPort))
 
-    # Use scapy to send packet over Faraday
-    sendp(srcPacket, iface=TUNMonitor._TUN._tun.name)
+    # Create simple IP packet with message. Send to TUN address:port
+    message = bytes("Hello, World! {0}".format(time.time()), "utf-8")
+    etherType = b"\x00\x00\x08\x00"
+    packet = etherType + (IP(dst=TUNMonitor._TUN._tun.addr,
+                             src=sourceAddress) /
+                          UDP(sport=sourcePort,
+                              dport=destPort)/message).__bytes__()
+
+    # Write a simple message over the TUN, no need for checker thread
+    TUNMonitor._TUN._tun.write(packet)
+
+    # Receive data from the socket bound to the TUN address:port
+    data, address = s.recvfrom(TUNMonitor._TUN._tun.mtu)
+
+    # Check that data written to TUN matches data received from socket
+    assert data == message
+    print(data)
+    print(message)
+
+    # Close the socket
+    s.close()
