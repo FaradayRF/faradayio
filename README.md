@@ -22,7 +22,26 @@ $ pip3 install -e .
 ```
 
 ## Usage
-_Placeholder for command line program completion. This should also have some module use examples as well but that will wait until this module is actually used to create a working program._
+```
+import serial
+import threading
+
+from faradayio.faraday import Monitor
+
+# Setup serial port
+serialPort = serial.Serial('/dev/ttyUSB0', 115200)
+
+# Create threading event for TUN thread control
+# set() causes while loop to continuously run until clear() is run
+isRunning = threading.Event()
+isRunning.set()
+
+# Start TUN, will run until `cntl+c` pressed
+tun = Monitor(serialPort=serialPort, name='KB1LQC-1', isRunning=isRunning)
+tun.start()
+```
+
+For a simple but more robust implementation of `faradayio` please see `faradayio-cli`. This is the [FaradayIO Command Line Client](https://github.com/FaradayRF/faradayio-cli) and is responsible for officially implementing `faradayio` for FaradayRF projects.
 
 ## Wiki
 Please use our [faradayio wiki](https://github.com/FaradayRF/faradayio/wiki) to find helpful tips on installation, setting up a development environment, and running unit tests.
