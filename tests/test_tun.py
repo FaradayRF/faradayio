@@ -200,43 +200,5 @@ def test_tunHardwareSendLoop():
     data at the end of the loopback test is valid when received over serial.
     This test is skipped if no hardware is connected.
     """
-    # Create a test serial port
-    serialInstance = faraday.SerialTestClass()
-    serialPort = serialInstance.serialPort
-
-    # Configure TUN IP:PORT and IP Packet source IP:PORT parameters for test
-    sourceAddress = '10.0.0.2'
-    sourcePort = 9998
-    destPort = 9999
-
-    # Start the monitor
-    isRunning = threading.Event()
-    isRunning.set()
-    TUNMonitor = faraday.Monitor(serialPort=serialPort,
-                                 isRunning=isRunning)
-
-    # Open a socket for UDP packets and bind it to the TUN address:port
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind((TUNMonitor._TUN._tun.addr, destPort))
-
-    # Create simple IP packet with message. Send to TUN address:port
-    message = bytes("Hello, World! {0}".format(time.time()), "utf-8")
-    etherType = b"\x00\x00\x08\x00"
-    packet = etherType + (IP(dst=TUNMonitor._TUN._tun.addr,
-                             src=sourceAddress) /
-                          UDP(sport=sourcePort,
-                              dport=destPort)/message).__bytes__()
-
-    # Write a simple message over the TUN, no need for checker thread
-    TUNMonitor._TUN._tun.write(packet)
-
-    # Receive data from the socket bound to the TUN address:port
-    data, address = s.recvfrom(TUNMonitor._TUN._tun.mtu)
-
-    # Check that data written to TUN matches data received from socket
-    assert data == message
-    print(data)
-    print(message)
-
-    # Close the socket
-    s.close()
+    # Fail test as this is a placeholder for when we test hardware
+    assert 1 == 0
