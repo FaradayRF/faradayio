@@ -1,6 +1,7 @@
 # FaradayIO
 [![Build Status](https://travis-ci.org/FaradayRF/faradayio.svg?branch=master)](https://travis-ci.org/FaradayRF/faradayio)
 [![Coverage Status](https://coveralls.io/repos/github/FaradayRF/faradayio/badge.svg?branch=master)](https://coveralls.io/github/FaradayRF/faradayio?branch=master)
+[![Join the chat at https://gitter.im/FaradayRF/Lobby](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FaradayRF/Lobby?utm_source=badge&utm_medium=badge&utm_content=badge)
 
 The `faradayio` module provides a [TUN/TAP](https://en.wikipedia.org/wiki/TUN/TAP) interface which tunnels network traffic in [SLIP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) format over a serial port. This was originally designed for the [Faraday](https://faradayrf.com/faraday/) radio but the software is radio agnostic. By default this module helps create a TUN/TAP adapter on the `10.0.0.0` network and a simple command line program is also provided to automatically setup a network adapter for a Faraday radio.
 
