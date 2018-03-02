@@ -1,9 +1,10 @@
 import socket
 import time
 import string
+import threading
+import pytest
 
 from faradayio import faraday
-from tests.serialtestclass import SerialTestClass
 from scapy.all import UDP, IP, sendp
 
 
@@ -11,16 +12,19 @@ def test_tunSetup():
     """Setup a Faraday TUN and check initialized values"""
 
     # Create a test serial port
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
-    faradayTUN = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort, isRunning=isRunning)
 
     # Check defaults
-    assert faradayTUN._TUN._tun.name == 'Faraday'
-    assert faradayTUN._TUN._tun.addr == '10.0.0.1'
-    assert faradayTUN._TUN._tun.netmask == '255.255.255.0'
-    assert faradayTUN._TUN._tun.mtu == 1500
+    assert TUNMonitor._TUN._tun.name == 'Faraday'
+    assert TUNMonitor._TUN._tun.addr == '10.0.0.1'
+    assert TUNMonitor._TUN._tun.netmask == '255.255.255.0'
+    assert TUNMonitor._TUN._tun.mtu == 1500
 
 
 def test_tunSend():
@@ -30,10 +34,13 @@ def test_tunSend():
     data and check that the IP payload is valid with scapy.
     """
     # Create a test serial port
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Create test TUN monitor which sets up a python-pytun TUN device at _TUN
-    faradayTUN = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort, isRunning=isRunning)
 
     # Send a string throught the IP
     HOST = "10.0.0.2"
@@ -49,7 +56,7 @@ def test_tunSend():
 
     # Loop through packets received until packet is received from correct port
     while True:
-        data = faradayTUN._TUN._tun.read(faradayTUN._TUN._tun.mtu)
+        data = TUNMonitor._TUN._tun.read(TUNMonitor._TUN._tun.mtu)
 
         # Remove ethertype and convert to IP packet with scapy
         packet = IP(data[4:])
@@ -81,14 +88,18 @@ def test_tunSlipSend():
     to TUN/IP nor IP to TUN data validation.
     """
     # Create a test serial port
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Configure destination IP:port
     destHost = '10.0.0.2'
     destPort = 9999
 
     # Start the monitor
-    TUNMonitor = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort,
+                                 isRunning=isRunning)
 
     # Create an IP packet to send from TUN IP:port (arbitrary) to dest IP:port
     srcPacket = (IP(dst=destHost,
@@ -138,7 +149,8 @@ def test_serialToTUN():
     SLIP. Send it to the TUN and verify that the IP:PORT receives the message.
     """
     # Create a test serial port for TUN Monitor class. Won't be used.
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
+    serialPort = serialInstance.serialPort
 
     # Configure TUN IP:PORT and IP Packet source IP:PORT parameters for test
     sourceAddress = '10.0.0.2'
@@ -146,7 +158,10 @@ def test_serialToTUN():
     destPort = 9999
 
     # Start a TUN Monitor class
-    TUNMonitor = faraday.Monitor(serialPort=serialPort)
+    isRunning = threading.Event()
+    isRunning.set()
+    TUNMonitor = faraday.Monitor(serialPort=serialPort,
+                                 isRunning=isRunning)
 
     # Open a socket for UDP packets and bind it to the TUN address:port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -171,3 +186,19 @@ def test_serialToTUN():
 
     # Close the socket
     s.close()
+
+
+@pytest.mark.skipif(
+    faraday.SerialTestClass.isPortAvailable() is False,
+    reason="Hardware not connected")
+def test_tunHardwareSendLoop():
+    """
+    Test SLIP data sent over the TUN adapter and a real serial port.
+
+    Start a TUN adapter and send data over it while a thread runs to receive
+    data sent over the tunnel and promptly send it over a serial port. Ensures
+    data at the end of the loopback test is valid when received over serial.
+    This test is skipped if no hardware is connected.
+    """
+    # Fail test as this is a placeholder for when we test hardware
+    assert 1 == 0

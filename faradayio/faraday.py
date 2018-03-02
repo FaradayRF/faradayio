@@ -10,6 +10,10 @@
 import sliplib
 import pytun
 import threading
+import serial
+import timeout_decorator
+
+import serial.tools.list_ports
 
 
 class Faraday(object):
@@ -46,7 +50,7 @@ class Faraday(object):
         slipData = slipDriver.send(msg)
 
         # Send data over serial port
-        res = self._serialPort.serialPort.write(slipData)
+        res = self._serialPort.write(slipData)
 
         # Return number of bytes transmitted over serial port
         return res
@@ -70,7 +74,7 @@ class Faraday(object):
         slipDriver = sliplib.Driver()
 
         # Receive data from serial port
-        ret = self._serialPort.serialPort.read(length)
+        ret = self._serialPort.read(length)
 
         # Decode data from slip format, stores msgs in sliplib.Driver.messages
         temp = slipDriver.receive(ret)
@@ -121,18 +125,20 @@ class Monitor(threading.Thread):
 
     Attributes:
         serialPort: Pyserial instance for a serial port
+        isRunning: Threading event to signal thread exit
         name: Name of TUN/TAP device to be created by the monitor
         addr: IP address of the TUN/TAP device to be created
         mtu: Maximum Transmission Unit of TUN/TAP adapter TODO delete?
     """
     def __init__(self,
                  serialPort,
+                 isRunning,
                  name="Faraday",
                  addr='10.0.0.1',
                  netmask='255.255.255.0',
                  mtu=1500):
         super().__init__()
-        self._isRunning = threading.Event()
+        self.isRunning = isRunning
         self._serialPort = serialPort
 
         # Start a TUN adapter
@@ -144,6 +150,7 @@ class Monitor(threading.Thread):
         # Create a Faraday instance
         self._faraday = Faraday(serialPort=serialPort)
 
+    @timeout_decorator.timeout(1, use_signals=False)
     def checkTUN(self):
         """
         Checks the TUN adapter for data and returns any that is found.
@@ -170,7 +177,7 @@ class Monitor(threading.Thread):
                 return ret
 
             except AttributeError as error:
-                # AttributeError was encountered
+                # AttributeError was encounteredthreading.Event()
                 print("AttributeError")
 
     def rxSerial(self, length):
@@ -202,7 +209,12 @@ class Monitor(threading.Thread):
         Check the serial port for data to write to the TUN adapter.
         """
         for item in self.rxSerial(self._TUN._tun.mtu):
-            self._TUN._tun.write(item)
+            # print("about to send: {0}".format(item))
+            try:
+                self._TUN._tun.write(item)
+            except pytun.Error as error:
+                print("pytun error writing: {0}".format(item))
+                print(error)
 
     def run(self):
         """
@@ -210,8 +222,54 @@ class Monitor(threading.Thread):
 
         Wraps the necessary functions to loop over until self._isRunning
         threading.Event() is set(). This checks for data on the TUN/serial
-        interfaces and then sends data over the appropriate interface.
+        interfaces and then sends data over the appropriate interface. This
+        function is automatically run when Threading.start() is called on the
+        Monitor class.
         """
-        while not self._isRunning.is_set():
-            self.checkTUN()
-            self.checkSerial()
+        while self.isRunning.is_set():
+            try:
+                try:
+                    # self.checkTUN()
+                    self.monitorTUN()
+
+                except timeout_decorator.TimeoutError as error:
+                    # No data received so just move on
+                    pass
+                self.checkSerial()
+            except KeyboardInterrupt:
+                break
+
+
+class SerialTestClass(object):
+    """A mock serial port test class"""
+    def __init__(self):
+        """Creates a mock serial port which is a loopback object"""
+        self._port = "loop://"
+        self._timeout = 0
+        self._baudrate = 115200
+        self.serialPort = \
+            serial.serial_for_url(url=self._port,
+                                  timeout=self._timeout,
+                                  baudrate=self._baudrate)
+
+    def isPortAvailable(port='/dev/ttyUSB0'):
+        '''
+        Checks whether specified port is available.
+
+        Source code derived from @lqdev suggestion per #38
+
+        Args:
+            port: Serial port location i.e. 'COM1'. Default is /dev/ttyUSB0
+
+        Returns:
+            available: Boolean value indicating presence of port
+        '''
+        isPortAvailable = serial.tools.list_ports.grep(port)
+
+        try:
+            next(isPortAvailable)
+            available = True
+        except StopIteration:
+            available = False
+
+        return available

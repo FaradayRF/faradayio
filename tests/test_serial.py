@@ -3,15 +3,15 @@ import sliplib
 import string
 
 from faradayio import faraday
-from tests.serialtestclass import SerialTestClass
+# from tests.serialtestclass import SerialTestClass
 
 
 def test_socketOne():
     """Simple test to make sure loopback serial port created successfully"""
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     testStr = "Hello World!"
-    serialPort.serialPort.write(testStr.encode(encoding='utf_8'))
-    res = serialPort.serialPort.read(len(testStr))
+    serialInstance.serialPort.write(testStr.encode(encoding='utf_8'))
+    res = serialInstance.serialPort.read(len(testStr))
 
     assert res.decode("utf-8") == testStr
 
@@ -36,8 +36,8 @@ def test_socketOne():
 ])
 def test_serialParamaterizedSynchSend(test_input):
     # Create class object necessary for test
-    serialPort = SerialTestClass()
-    faradayRadio = faraday.Faraday(serialPort)
+    serialInstance = faraday.SerialTestClass()
+    faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
     # Create slip message to test against
     slipMsg = sliplib.encode(test_input)
@@ -46,7 +46,7 @@ def test_serialParamaterizedSynchSend(test_input):
     res = faradayRadio.send(test_input)
 
     # Use serial to receive raw transmission with slip protocol
-    ret = serialPort.serialPort.read(res)
+    ret = serialInstance.serialPort.read(res)
 
     # Check that the returned data from the serial port == slipMsg
     assert ret == slipMsg
@@ -77,15 +77,15 @@ def test_serialParamaterizedSynchReceive(test_input):
     """
 
     # Create class object necessary for test
-    serialPort = SerialTestClass()
+    serialInstance = faraday.SerialTestClass()
     slip = sliplib.Driver()
-    faradayRadio = faraday.Faraday(serialPort)
+    faradayRadio = faraday.Faraday(serialInstance.serialPort)
 
     # Create slip message to test against
     slipMsg = slip.send(test_input)
 
     # Use serial to send raw transmission with slip protocol
-    res = serialPort.serialPort.write(slipMsg)
+    res = serialInstance.serialPort.write(slipMsg)
 
     # Receive data from Faraday which yields each item it parses from slip
     for item in faradayRadio.receive(res):
