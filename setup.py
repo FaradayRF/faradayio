@@ -21,7 +21,7 @@ setup(
         'pytest-cov==2.5.1',
         'timeout-decorator==0.4.0',
     ],
-    version='0.0.2a',
+    version='0.0.3',
     description='FaradayRF TUN/TAP adapter',
     author='FaradayRF',
     author_email='Support@FaradayRF.com',
