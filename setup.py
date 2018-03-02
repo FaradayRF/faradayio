@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
     name='faradayio',
     packages=['faradayio'],
-    install_requires={
+    install_requires=[
         'attrs==17.4.0',
         'flake8==3.5.0',
         'mccabe==0.6.1',
@@ -20,7 +20,7 @@ setup(
         'coveralls==1.2.0',
         'pytest-cov==2.5.1',
         'timeout-decorator==0.4.0',
-    }
+    ],
     version='0.0.2a',
     description='FaradayRF TUN/TAP adapter',
     author='FaradayRF',
