@@ -47,7 +47,7 @@ class Faraday(object):
         slipDriver = sliplib.Driver()
 
         # Package data in slip format
-        #TODO: Unit test this!
+        # TODO: Unit test this!
         slipData = slipDriver.send(msg)
 
         # Send data over serial port
@@ -84,7 +84,7 @@ class Faraday(object):
             print("SLIP decode error...")
             print(error)
             # Return empty list,
-            #TODO: Unit test this!
+            # TODO: Unit test this!
             return []
 
         return iter(temp)
