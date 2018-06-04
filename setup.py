@@ -21,7 +21,7 @@ setup(
         'pytest-cov==2.5.1',
         'python-pytun==2.2.1',
         'requests==2.18.4',
-        'scapy-python3==0.23',
+        'scapy>=2.4.0',
         'six==1.11.0',
         'sliplib==0.3.0',
         'sphinx-rtd-theme==0.2.4',
