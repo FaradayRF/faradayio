@@ -20,7 +20,7 @@ setup(
         'pytest==3.4.1',
         'pytest-cov==2.5.1',
         'python-pytun==2.2.1',
-        'requests==2.18.4',
+        'requests==2.20.0',
         'scapy-python3==0.23',
         'six==1.11.0',
         'sliplib==0.3.0',
