@@ -13,7 +13,7 @@ setup(
         'idna==2.6',
         'mccabe==0.6.1',
         'pluggy==0.6.0',
-        'py==1.5.2',
+        'py==1.10.0',
         'pycodestyle==2.3.1',
         'pyflakes==1.6.0',
         'pyserial==3.4',
