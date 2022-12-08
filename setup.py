@@ -4,7 +4,7 @@ setup(
     packages=['faradayio'],
     install_requires=[
         'attrs==17.4.0',
-        'certifi==2018.1.18',
+        'certifi==2022.12.7',
         'chardet==3.0.4',
         'coverage==4.5.1',
         'coveralls==1.2.0',
